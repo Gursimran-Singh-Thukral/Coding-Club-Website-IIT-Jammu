@@ -30,6 +30,40 @@ const verifyInstituteEmail = async(req, res, next) => {
 
         }
 
+        // Isolate the Token String from the Bearer Prefix
+
+        const token = authHeader.split(' ')[1];
+
+        // Validate the Token Cryptographically Against the Supabase Auth Server
+
+        const { data: {user}, error } = await supabase.auth.getUser(token);
+
+        if(error || !user){
+
+            return res.status(401).json({
+
+                status: "Error", 
+                message: "Unauthorized: Token Verification Failed or has Expired"
+
+            });
+
+        }
+
+        // Strict Domain Enforcement
+
+        const userEmail = user.email;
+
+        if(!userEmail || !userEmail.endsWith('@iitjammu.ac.in')){
+
+            return res.status(403).json({
+
+                status: "Error", 
+                message: "Forbidden: Access is Strictly Restricted to Official @iitjammu.ac.in Accounts."
+
+            })
+
+        }
+
         // Attach the Verified User Payload to the Request Object for Downstream Controllers to use
 
         req.user = user;
