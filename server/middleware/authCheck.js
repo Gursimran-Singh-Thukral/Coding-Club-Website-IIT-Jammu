@@ -89,4 +89,97 @@ const verifyInstituteEmail = async(req, res, next) => {
 
 };
 
-module.exports = {verifyInstituteEmail};
+/**
+ * 
+ * Role-Based Access Control (RBAC) Middleware
+ * 
+ * Verifies that the authenticated user possesses the required authorization 
+ * level (role) in the database before accessing sensitive administrative routes.
+ * 
+ * @param {Array<string>} allowedRoles - Array of roles permitted to access the route.
+ * 
+ */
+
+const requireRole = (allowedRoles) => {
+
+    // This returns a customized middleware function.
+
+    return async(req, res, next) => {
+
+        try{
+
+            // Ensuring that the User is already Authenticated by the verifyInstituteEmail function
+
+            if(!req.user || !req.user.id){
+
+                return res.status(401).json({
+
+                    status: "Error",
+                    message: "Unauthorized: User Context Missing. Ensure Authentication Middleware Runs First"
+
+                });
+
+            }
+
+            // Fetch the User's Custom Role from our 'users' Table
+
+            const { data: dbUser, error } = await supabase
+
+                .from('users')
+                .select('role')
+                .eq('id', req.user.id)
+                .single();
+
+            // Handle Database Lookup Errors or Missing Profiles
+
+            if(error || !dbUser){
+
+                return res.status(403).json({
+
+                    status: "Error",
+                    message: "Forbidden: User Profile was not Found in the Database System."
+
+                })
+
+            }
+
+            // Strict Role Enforcement
+
+            if(!allowedRoles.includes(dbUser.role)){
+
+                return res.status(403).json({
+
+                    status: "Error", 
+                    message: `Forbidden: Insufficient Permissions. Require one of: ${allowedRoles.join(', ')}.`
+
+                });
+
+            }
+
+            // Attach the Verified Role to the Request for Downstream Controllers
+
+            req.userRole = dbUser.role;
+
+            // Access Granted
+
+            next()
+
+        }
+
+        catch(err){
+
+            console.error("[RBAC Middleware Error]: ", err.message);
+            return res.status(500).json({
+
+                status: "Error",
+                message: "Internal Server Error during Role Verification"
+
+            });
+
+        }
+
+    };
+
+};
+
+module.exports = { verifyInstituteEmail, requireRole };

@@ -15,7 +15,7 @@ const express = require('express');
 // Database and Middleware Imports
 
 const supabase = require('./db/supabaseClient');
-const { verifyInstituteEmail } = require('./middleware/authCheck');
+const { verifyInstituteEmail, requireRole } = require('./middleware/authCheck');
 
 // Route Imports
 
@@ -73,6 +73,33 @@ app.get('/api/protected-test', verifyInstituteEmail, (req, res) => {
     });
 
 });
+
+/**
+ * 
+ * Admin-Only Test Endpoint (Highly Secure)
+ * Route: GET /api/admin-test
+ * Purpose: Validates that chained middleware correctly enforces authentication AND authorization.
+ * 
+ */
+
+app.get(
+
+    '/api/admin-test', 
+    verifyInstituteEmail,
+    requireRole(['Manager', 'Field Specialist']),
+    (req, res) => {
+
+        res.status(200).json({
+
+            status: "Success",
+            message: "Admin Access Granted. You are authorized to manage Projects and JmX.",
+            role: req.userRole
+
+        });
+
+    }
+
+);
 
 // Global Error Handler
 
