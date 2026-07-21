@@ -20,6 +20,7 @@ const { verifyInstituteEmail, requireRole } = require('./middleware/authCheck');
 // Route Imports
 
 const userRoutes = require('./routes/userRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 // Initialize Express App
 
@@ -104,6 +105,7 @@ app.get(
 );
 
 app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
 
 // Global Error Handler
 

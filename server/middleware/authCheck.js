@@ -1,10 +1,10 @@
 /**
- * 
- * Authentication & Domain Verification Middleware
- * 
- * Intercepts incoming requests to validate the JSON Web Token (JWT) provided by the client.
- * Strictly enforces that the authenticated user's email belongs to the official institute domain.
- * 
+
+    Authentication & Domain Verification Middleware
+
+    Intercepts incoming requests to validate the JSON Web Token (JWT) provided by the client.
+    Strictly enforces that the authenticated user's email belongs to the official institute domain.
+
  */
 
 const supabase = require('../db/supabaseClient');
@@ -90,14 +90,14 @@ const verifyInstituteEmail = async(req, res, next) => {
 };
 
 /**
- * 
- * Role-Based Access Control (RBAC) Middleware
- * 
- * Verifies that the authenticated user possesses the required authorization 
- * level (role) in the database before accessing sensitive administrative routes.
- * 
- * @param {Array<string>} allowedRoles - Array of roles permitted to access the route.
- * 
+
+    Role-Based Access Control (RBAC) Middleware
+
+    Verifies that the authenticated user possesses the required authorization 
+    level (role) in the database before accessing sensitive administrative routes.
+
+    @param {Array<string>} allowedRoles - Array of roles permitted to access the route.
+
  */
 
 const requireRole = (allowedRoles) => {
