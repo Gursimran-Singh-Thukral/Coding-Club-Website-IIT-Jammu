@@ -79,7 +79,7 @@ All technical and managerial contributions are quantified into a unified club cu
 | Validated Event Attendance      | +10 JmX                          |
 | Organizing/Volunteering         | +150 JmX                         |
 | Podium Finish in Hackathons     | +150 to +300 JmX                 |
-| Verified Independent Project    | +100 JmX                         |
+| Verified Independent Project    | +10 to +500 JmX                         |
 | API-Verified External Milestone | +100 JmX(per milestone unlocked) |
 
 ### Leaderboard Structure
