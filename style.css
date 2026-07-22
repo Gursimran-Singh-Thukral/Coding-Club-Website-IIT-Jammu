@@ -1,0 +1,560 @@
+/* ==========================================================================
+   Global Variables & Theme
+   ========================================================================== */
+:root {
+  /* Dark Theme Palette */
+  --bg-space: #050505;
+  --bg-slate: #121212;
+  --bg-card: rgba(18, 18, 18, 0.6);
+  
+  /* Vibrant Accents */
+  --jmx-cyan: #00f0ff;
+  --jmx-purple: #8a2be2;
+  --jmx-emerald: #00ff7f;
+  --jmx-red: #ff3366;
+  
+  /* Typography */
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+  
+  /* Glassmorphism */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-space);
+  color: #ffffff;
+  line-height: 1.6;
+  overflow-x: hidden;
+  /* Smooth scrolling for links */
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   Background Animation Container
+   ========================================================================== */
+#cinematic-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050505 100%);
+}
+
+/* ==========================================================================
+   Glassmorphism Utilities
+   ========================================================================== */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border-radius: 16px;
+}
+
+.glass-nav {
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-card {
+  background: rgba(25, 25, 25, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--glass-highlight);
+  box-shadow: 0 10px 40px rgba(0, 240, 255, 0.1);
+}
+
+/* ==========================================================================
+   Typography & Accents
+   ========================================================================== */
+.text-gradient {
+  background: linear-gradient(90deg, var(--jmx-cyan), var(--jmx-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.jmx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: rgba(0, 255, 127, 0.1);
+  color: var(--jmx-emerald);
+  border: 1px solid rgba(0, 255, 127, 0.2);
+}
+
+.jmx-badge.glow {
+  box-shadow: 0 0 10px rgba(0, 255, 127, 0.3);
+}
+
+/* ==========================================================================
+   Layout & Navigation
+   ========================================================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1rem 0;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #a0a0a0;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--jmx-purple), var(--jmx-cyan));
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid var(--glass-highlight);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   Sections
+   ========================================================================== */
+section {
+  padding: 6rem 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.hero h1 {
+  font-size: 4.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: #a0a0a0;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Grid Layouts
+   ========================================================================== */
+.grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  /* Animation triggered via JS/GSAP */
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 3rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .nav-links { display: none; } /* Simplified for prototype */
+}
+
+/* ==========================================================================
+   Racing Bar Chart Leaderboard
+   ========================================================================== */
+.racing-board-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Custom Scrollbar */
+.racing-board-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+.racing-board-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.racing-board-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.racing-board-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--jmx-cyan);
+}
+
+.r-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.r-bar-label {
+  width: 140px; /* Fixed width for labels */
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.r-bar-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.r-bar-domain {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+}
+
+.r-bar-track {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Add subtle background track if desired */
+  /* background: rgba(255,255,255,0.02); */
+  /* border-radius: 4px; */
+}
+
+.r-bar-fill {
+  height: 44px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Align avatar to the right */
+  padding-right: 4px;
+  min-width: 50px; /* Ensure space for avatar even if score is 0 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: width 1s ease-out;
+}
+
+.r-bar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: #333;
+}
+
+.r-bar-score {
+  font-family: var(--font-primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d0d0d0;
+  white-space: nowrap;
+}
+
+/* Domain Colors */
+.fill-web { background: #553cf3; }
+.fill-ai { background: #8a2be2; }
+.fill-cp { background: #00b050; }
+.fill-sec { background: #d92550; }
+.fill-user { background: linear-gradient(90deg, #111, var(--jmx-cyan)); }
+
+/* Sticky user row */
+.r-bar-sticky {
+  position: sticky;
+  bottom: 0;
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--jmx-cyan);
+  padding: 1rem;
+  z-index: 10;
+  margin-top: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 -10px 30px rgba(0, 240, 255, 0.1);
+}
+
+.r-bar-sticky .r-bar-name {
+  color: var(--jmx-cyan);
+}
+
+/* ==========================================================================
+   Admin Dashboard Layout
+   ========================================================================== */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 0; /* Override container padding */
+}
+
+.admin-sidebar {
+  width: 280px;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  padding: 2rem 1.5rem;
+}
+
+.admin-sidebar-header {
+  margin-bottom: 3rem;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-nav a {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  color: #a0a0a0;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.admin-nav a:hover, .admin-nav a.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.admin-nav a.active {
+  border-left: 3px solid var(--jmx-cyan);
+  background: rgba(0, 240, 255, 0.05);
+  color: var(--jmx-cyan);
+}
+
+.admin-main {
+  flex-grow: 1;
+  margin-left: 280px;
+  padding: 3rem;
+  overflow-y: auto;
+}
+
+.status-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: rgba(255, 165, 0, 0.15);
+  color: #ffa500;
+  border: 1px solid rgba(255, 165, 0, 0.3);
+}
+
+.status-live {
+  background: rgba(0, 255, 127, 0.15);
+  color: var(--jmx-emerald);
+  border: 1px solid rgba(0, 255, 127, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 127, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(0, 255, 127, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 127, 0); }
+}
+
+/* ==========================================================================
+   Admin Forms & Role UI
+   ========================================================================== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a0a0a0;
+}
+
+.form-input, .form-select, .form-textarea {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: #fff;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23A0A0A0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem top 50%;
+  background-size: 0.65rem auto;
+}
+
+.form-select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--jmx-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.danger-zone {
+  border: 1px solid rgba(255, 68, 68, 0.4);
+  background: rgba(255, 68, 68, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.danger-zone h3 {
+  color: #ff4444;
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - IITJ Coding Club</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tab-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        .tab-btn.active {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--jmx-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active-content {
+            display: block;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.25rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        .toggle-option {
+            padding: 0.4rem 1rem;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #888;
+            transition: all 0.2s ease;
+        }
+        .toggle-option.selected {
+            background: var(--jmx-purple);
+            color: white;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="cinematic-bg"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="container nav-content">
+            <div class="logo">IITJ <span class="text-gradient">&lt;Code/&gt;</span></div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="leaderboard.html" class="active">Leaderboard</a>
+                <a href="events.html">Events</a>
+                <a href="collaborator.html">Collaborators</a>
+                <a href="profile.html" class="btn-primary" style="color: white; padding: 0.5rem 1.2rem;">My Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 100vh;">
+        
+        <div class="fade-in-up" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+            <div>
+                <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">Global <span class="text-gradient">Rankings</span></h1>
+                <p style="color: #a0a0a0;">See who's leading the campus developer ecosystem.</p>
+            </div>
+            
+            <!-- Juniors Only Toggle -->
+            <div class="toggle-switch">
+                <div class="toggle-option selected">Everyone</div>
+                <div class="toggle-option">Juniors Only</div>
+            </div>
+        </div>
+
+        <div class="glass-panel fade-in-up" style="padding: 2rem;">
+            <!-- Tabs -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-target="tab-cumulative">Cumulative</button>
+                <button class="tab-btn" data-target="tab-cp">Competitive Programming</button>
+                <button class="tab-btn" data-target="tab-web">Web Dev</button>
+                <button class="tab-btn" data-target="tab-ai">AI / ML</button>
+                <button class="tab-btn" data-target="tab-sec">Cybersecurity</button>
+            </div>
+
+            <!-- Tab Content: Cumulative -->
+            <div id="tab-cumulative" class="tab-content active-content">
+                
+                <!-- Racing Bar Chart Container -->
+                <div class="racing-board-wrapper">
+                    
+                    <!-- Row 1 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name" style="color: #ffd700;">#1 Aarav Sharma</span>
+                            <span class="r-bar-domain">Web Dev</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-web" style="width: 100%;">
+                                <img src="https://i.pravatar.cc/150?img=11" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">8,450 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name" style="color: #c0c0c0;">#2 Priya Singh</span>
+                            <span class="r-bar-domain">AI / ML</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-ai" style="width: 96%;">
+                                <img src="https://i.pravatar.cc/150?img=5" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">8,120 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name" style="color: #cd7f32;">#3 Rohan Gupta</span>
+                            <span class="r-bar-domain">Comp. Prog.</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-cp" style="width: 93%;">
+                                <img src="https://i.pravatar.cc/150?img=8" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">7,900 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 4 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#4 Sneha Patel</span>
+                            <span class="r-bar-domain">Cybersec</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-sec" style="width: 80%;">
+                                <img src="https://i.pravatar.cc/150?img=33" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">6,800 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 5 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#5 Vikram Joshi</span>
+                            <span class="r-bar-domain">Web Dev</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-web" style="width: 74%;">
+                                <img src="https://i.pravatar.cc/150?img=68" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">6,250 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 6 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#6 Kiran Rao</span>
+                            <span class="r-bar-domain">AI / ML</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-ai" style="width: 68%;">
+                                <img src="https://i.pravatar.cc/150?img=47" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">5,800 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 7 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#7 Amit Singh</span>
+                            <span class="r-bar-domain">Comp. Prog.</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-cp" style="width: 59%;">
+                                <img src="https://i.pravatar.cc/150?img=53" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">5,050 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 8 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#8 Neha Gupta</span>
+                            <span class="r-bar-domain">Web Dev</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-web" style="width: 54%;">
+                                <img src="https://i.pravatar.cc/150?img=60" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">4,600 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 9 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#9 Ananya Reddy</span>
+                            <span class="r-bar-domain">Cybersec</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-sec" style="width: 49%;">
+                                <img src="https://i.pravatar.cc/150?img=17" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">4,200 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Row 10 -->
+                    <div class="r-bar-item">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name">#10 Devansh K</span>
+                            <span class="r-bar-domain">AI / ML</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-ai" style="width: 45%;">
+                                <img src="https://i.pravatar.cc/150?img=15" class="r-bar-avatar">
+                            </div>
+                            <span class="r-bar-score">3,800 JmX</span>
+                        </div>
+                    </div>
+
+                    <!-- Sticky User Row (For when user is not in top 5, pinned to bottom) -->
+                    <div class="r-bar-item r-bar-sticky">
+                        <div class="r-bar-label">
+                            <span class="r-bar-name" style="font-size: 1.1rem;">#42 Aryan (You)</span>
+                            <span class="r-bar-domain">Web Dev</span>
+                        </div>
+                        <div class="r-bar-track">
+                            <div class="r-bar-fill fill-user" style="width: 15%;">
+                                <img src="https://i.pravatar.cc/300?img=12" class="r-bar-avatar" style="border-color: var(--jmx-cyan);">
+                            </div>
+                            <span class="r-bar-score" style="color: var(--jmx-cyan);">1,250 JmX</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Placeholder for other tabs -->
+            <div id="tab-cp" class="tab-content">
+                <p style="padding: 2rem; text-align: center; color: #a0a0a0;">Competitive Programming leaderboard data (Pulled from LeetCode/Codeforces APIs) will appear here.</p>
+            </div>
+            <div id="tab-web" class="tab-content">
+                <p style="padding: 2rem; text-align: center; color: #a0a0a0;">Web Development leaderboard data will appear here.</p>
+            </div>
+            <div id="tab-ai" class="tab-content">
+                <p style="padding: 2rem; text-align: center; color: #a0a0a0;">AI / ML leaderboard data will appear here.</p>
+            </div>
+            <div id="tab-sec" class="tab-content">
+                <p style="padding: 2rem; text-align: center; color: #a0a0a0;">Cybersecurity leaderboard data will appear here.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="app.js"></script>
+    
+    <!-- Simple script for Toggle Switch interaction -->
+    <script>
+        const toggleOptions = document.querySelectorAll('.toggle-option');
+        toggleOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                toggleOptions.forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

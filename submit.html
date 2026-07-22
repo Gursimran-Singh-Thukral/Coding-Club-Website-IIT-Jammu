@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Work - IITJ Coding Club</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #a0a0a0;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--jmx-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23A0A0A0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem top 50%;
+            background-size: 0.65rem auto;
+        }
+        .form-select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .info-box {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid var(--jmx-cyan);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .info-box p {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Domain Buttons */
+        .domain-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: #a0a0a0;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--font-primary);
+            font-weight: 500;
+        }
+        .domain-btn.active {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--jmx-cyan);
+            color: var(--jmx-cyan);
+        }
+
+        /* Source Tabs */
+        .source-tab-btn {
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            border-bottom: 2px solid transparent;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: var(--font-primary);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .source-tab-btn.active {
+            color: var(--jmx-cyan);
+            border-bottom: 2px solid var(--jmx-cyan);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="cinematic-bg"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="container nav-content">
+            <div class="logo">IITJ <span class="text-gradient">&lt;Code/&gt;</span></div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="leaderboard.html">Leaderboard</a>
+                <a href="events.html">Events</a>
+                <a href="collaborator.html">Collaborators</a>
+                <a href="studentprofile.html" class="btn-primary" style="color: white; padding: 0.5rem 1.2rem;">My Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container" style="padding-top: 8rem; padding-bottom: 4rem; min-height: 100vh;">
+        
+        <div class="form-container">
+            <div class="fade-in-up" style="margin-bottom: 2rem;">
+                <a href="studentprofile.html" style="color: #a0a0a0; text-decoration: none; font-size: 0.9rem;">← Back to Profile</a>
+                <h1 style="font-size: 2.5rem; margin-top: 1rem; margin-bottom: 0.5rem;">Submit <span class="text-gradient">Work</span></h1>
+                <p style="color: #a0a0a0;">Submit your projects or research publications for review by Domain Heads to earn JmX.</p>
+            </div>
+
+            <div class="glass-panel fade-in-up" style="padding: 2.5rem;">
+                
+                <div class="info-box">
+                    <span style="font-size: 1.5rem;">💡</span>
+                    <p><strong>Verification Process:</strong> Once submitted, your work will be placed in the global Verification Queue. A Domain Head will review the repository and live demo. If approved, JmX will be automatically credited to your account. <strong>Note: Providing at least one source (Repository or Live Demo) is compulsory, but giving both is optional.</strong></p>
+                </div>
+
+                <form>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label class="form-label">Target Domain</label>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button type="button" class="domain-btn active" style="flex: 1;">Web Dev</button>
+                            <button type="button" class="domain-btn" style="flex: 1;">AI / ML</button>
+                            <button type="button" class="domain-btn" style="flex: 1;">Comp Prog</button>
+                            <button type="button" class="domain-btn" style="flex: 1;">Other</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Title of Project / Publication</label>
+                        <input type="text" class="form-input" placeholder="e.g. Smart Campus Navigation App">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Summary / Abstract</label>
+                        <textarea class="form-textarea" placeholder="Briefly describe what you built, the tech stack used, and the problem it solves..."></textarea>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label" style="margin-bottom: 1rem;">Submission Sources</label>
+                        
+                        <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); margin-bottom: 1.5rem;">
+                            <button type="button" class="source-tab-btn active" data-target="source-repo">GitHub Repository</button>
+                            <button type="button" class="source-tab-btn" data-target="source-demo">Live Demo / Paper</button>
+                            <button type="button" class="source-tab-btn" data-target="source-both">Provide Both</button>
+                        </div>
+
+                        <div id="source-repo" class="source-tab-panel" style="display: block;">
+                            <input type="url" class="form-input" placeholder="https://github.com/yourusername/repo">
+                        </div>
+                        
+                        <div id="source-demo" class="source-tab-panel" style="display: none;">
+                            <input type="url" class="form-input" placeholder="https://myapp.vercel.app or https://doi.org/...">
+                        </div>
+                        
+                        <div id="source-both" class="source-tab-panel" style="display: none;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div>
+                                    <label class="form-label" style="font-size: 0.85rem;">GitHub Repository</label>
+                                    <input type="url" class="form-input" placeholder="https://github.com/yourusername/repo">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size: 0.85rem;">Live Demo</label>
+                                    <input type="url" class="form-input" placeholder="https://myapp.vercel.app or https://doi.org/...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 2rem; margin-bottom: 0;">
+                        <button type="button" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; border-radius: 8px; border: none; cursor: pointer; background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); color: white; font-weight: 600;">Submit for Verification</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Domain Selection Logic
+        const domainBtns = document.querySelectorAll('.domain-btn');
+        domainBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                domainBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Source Tabs Logic
+        const sourceTabBtns = document.querySelectorAll('.source-tab-btn');
+        const sourceTabPanels = document.querySelectorAll('.source-tab-panel');
+
+        sourceTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active classes
+                sourceTabBtns.forEach(b => b.classList.remove('active'));
+                sourceTabPanels.forEach(p => p.style.display = 'none');
+                
+                // Add active to current
+                btn.classList.add('active');
+                
+                // Show target panel
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

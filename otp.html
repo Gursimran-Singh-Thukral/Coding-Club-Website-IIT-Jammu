@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Event Projector - IITJ Coding Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0f;
+            overflow: hidden;
+        }
+        .projector-container {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(0, 240, 255, 0.05);
+            border: 2px solid var(--jmx-cyan);
+            border-radius: 24px;
+            box-shadow: 0 0 100px rgba(0, 240, 255, 0.15);
+            backdrop-filter: blur(20px);
+        }
+        .totp-display {
+            font-size: 8rem;
+            font-weight: 800;
+            letter-spacing: 1rem;
+            color: #fff;
+            margin: 2rem 0;
+            text-shadow: 0 0 50px rgba(0, 240, 255, 0.8);
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="cinematic-bg"></canvas>
+
+    <div class="projector-container">
+        <h1 style="font-size: 3rem; color: var(--jmx-cyan); margin-bottom: 1rem;">Web Dev Bootcamp: APIs</h1>
+        <p style="font-size: 1.5rem; color: #a0a0a0; text-transform: uppercase; letter-spacing: 3px;">Attendance Transmission Token</p>
+        
+        <div class="totp-display" id="admin-totp-code">842 195</div>
+        
+        <div style="margin-top: 2rem;">
+            <p style="font-size: 1.5rem; color: #a0a0a0;">Token refreshes in <span id="admin-timer" style="font-weight: 800; color: #fff; font-size: 2rem; margin: 0 0.5rem;">30</span> seconds</p>
+            <p style="font-size: 1.2rem; color: var(--jmx-emerald); margin-top: 1rem;">Enter this code on the Event Hub to claim +150 JmX</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Admin TOTP Timer Simulation
+        let timeLeft = 30;
+        const timerElement = document.getElementById('admin-timer');
+        const codeElement = document.getElementById('admin-totp-code');
+
+        function generateRandomCode() {
+            const part1 = Math.floor(100 + Math.random() * 900);
+            const part2 = Math.floor(100 + Math.random() * 900);
+            return `${part1} ${part2}`;
+        }
+
+        setInterval(() => {
+            timeLeft--;
+            if (timeLeft < 0) {
+                timeLeft = 30;
+                gsap.to(codeElement, {opacity: 0, duration: 0.2, onComplete: () => {
+                    codeElement.innerText = generateRandomCode();
+                    gsap.to(codeElement, {opacity: 1, duration: 0.2});
+                }});
+            }
+            timerElement.innerText = timeLeft;
+        }, 1000);
+    </script>
+</body>
+</html>
