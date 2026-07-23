@@ -68,6 +68,8 @@ To ensure seamless communication and rapid project verification, the platform fe
 
 * **Automated Emails**: Integration with an email service (e.g., Resend or SendGrid) to automatically dispatch emails. Examples include alerting a Field Specialist when a new project requires verification, or emailing a student when their project is approved or rejected.
 
+### Publication
+
 ## Gamification: The JmX Currency & Leaderboards
 
 ### The JmX Economy 
@@ -79,7 +81,7 @@ All technical and managerial contributions are quantified into a unified club cu
 | Validated Event Attendance      | +10 JmX                          |
 | Organizing/Volunteering         | +150 JmX                         |
 | Podium Finish in Hackathons     | +150 to +300 JmX                 |
-| Verified Independent Project    | +100 JmX                         |
+| Verified Independent Project    | +100 JmX (Acc to Project)        |
 | API-Verified External Milestone | +100 JmX(per milestone unlocked) |
 
 ### Leaderboard Structure

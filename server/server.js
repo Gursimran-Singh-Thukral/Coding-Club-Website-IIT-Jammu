@@ -1,126 +1,50 @@
-/**
- * 
- * Main Application Entry Point
- * 
- * Initializes the Express server, configures global middleware, 
- * establishes the database connection, and defines core routing logic.
- * 
- */
+/*
 
-// Core Imports
+    @fileoverview Main Point for the Coding Club API.
+    Handles server Initialization, Middleware Configuration, and Route Mounting.
+
+*/
 
 require('dotenv').config();
+
 const express = require('express');
-
-// Database and Middleware Imports
-
-const supabase = require('./db/supabaseClient');
-const { verifyInstituteEmail, requireRole } = require('./middleware/authCheck');
-
-// Route Imports
-
-const userRoutes = require('./routes/userRoutes');
-const projectRoutes = require('./routes/projectRoutes');
-
-// Initialize Express App
+const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Global Middleware
+const supabase = require('./config/supabaseClient');
 
-app.use(express.json());                  // Parses Incoming JSON data from the Frontend Request
+// Middleware
 
-// Traffic Routing
+app.use(cors());            // Allows Frontend to Connect with Backend
+app.use(express.json());    // Allows Express to Parse JSON Bodies in Requests
 
-/**
- * 
- * Health Check Endpoint
- * Route: GET /api/status
- * Purpose: Verifies server operational status and basic connectivity for load balancers or client checks.
- * 
- */
+// Base Routes
 
-app.get('/api/status', (req, res) => {
+/*
 
-    console.log("Incoming Ping Detected at /api/status!");
+    @route GET /health
+    @desc Verifies the Server is Operational and Responding.
+
+*/
+
+app.get('/health', (req, res) => {
 
     res.status(200).json({
 
-        status: "Success",
-        message: "Coding Club Backend is Operational",
-        timestamp: new Date().toISOString()
+        status: 'Success',
+        message: 'Coding Club API is Live and Healthy.'
 
     });
 
 });
 
-/**
- * 
- * Protected Test Endpoint (Secure)
- * Route: GET /api/protected-test
- * Purpose: Validates that the authCheck middleware correctly intercepts and validates JWTs.
- * 
- */
+// Server Initialization
 
-app.get('/api/protected-test', verifyInstituteEmail, (req, res) => {
-
-    // If the Code reaches here, the middleware's next() function is called.
-
-    req.status(200).json({
-
-        status: "Success",
-        message: "Access Granted. Security Clearance Verified",
-        authenticatedUser: req.user.email
-
-    });
-
-});
-
-/**
- * 
- * Admin-Only Test Endpoint (Highly Secure)
- * Route: GET /api/admin-test
- * Purpose: Validates that chained middleware correctly enforces authentication AND authorization.
- * 
- */
-
-app.get(
-
-    '/api/admin-test', 
-    verifyInstituteEmail,
-    requireRole(['Manager', 'Field Specialist']),
-    (req, res) => {
-
-        res.status(200).json({
-
-            status: "Success",
-            message: "Admin Access Granted. You are authorized to manage Projects and JmX.",
-            role: req.userRole
-
-        });
-
-    }
-
-);
-
-app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
-
-// Global Error Handler
-
-app.use((err, req, res, next) => {
-
-    console.error("Server Error Intercepted: ", err.message);
-    res.status(500).json({error: "Internal Server Error. Please try again!"});
-
-});
-
-// Bind the Application to the Specified Port and Start Listening for Incoming HTTP Requests
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
 
-    console.log(`[Server] Initialization Complete. Listening on https://localhost:${PORT}`);
-    console.log(`[Database] Supabase Connection Active`);
+    console.log(`[Server] Initialization Complete. Listening on Port ${PORT}`);
 
 });
