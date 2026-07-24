@@ -13,6 +13,8 @@ const cors = require('cors');
 const app = express();
 
 const supabase = require('./config/supabaseClient');
+const { verifyAuth } = require('./middleware/authMiddleware');
+const userRoutes = require('./routes/userRoutes');
 
 // Middleware
 
@@ -38,6 +40,28 @@ app.get('/health', (req, res) => {
     });
 
 });
+
+/*
+
+    @route GET /test-auth
+    @desc A Temp Protected Route to Test our JWT Middleware.
+
+*/
+
+app.get('/test-auth', verifyAuth, (req, res) => {
+
+    res.status(200).json({
+
+        status: 'Success',
+        message: 'You Passed the Bouncer!',
+        user_email: req.user.email,
+        user_id: req.user.id
+
+    });
+
+});
+
+app.use('/api/users', userRoutes);
 
 // Server Initialization
 
