@@ -1,4 +1,4 @@
-/*
+/**
 
     @fileoverview Main Point for the Coding Club API.
     Handles server Initialization, Middleware Configuration, and Route Mounting.
@@ -13,8 +13,11 @@ const cors = require('cors');
 const app = express();
 
 const supabase = require('./config/supabaseClient');
+
 const { verifyAuth } = require('./middleware/authMiddleware');
+
 const userRoutes = require('./routes/userRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 
 // Middleware
 
@@ -23,7 +26,7 @@ app.use(express.json());    // Allows Express to Parse JSON Bodies in Requests
 
 // Base Routes
 
-/*
+/**
 
     @route GET /health
     @desc Verifies the Server is Operational and Responding.
@@ -41,7 +44,7 @@ app.get('/health', (req, res) => {
 
 });
 
-/*
+/**
 
     @route GET /test-auth
     @desc A Temp Protected Route to Test our JWT Middleware.
@@ -62,6 +65,7 @@ app.get('/test-auth', verifyAuth, (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
 
 // Server Initialization
 

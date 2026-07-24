@@ -1,4 +1,4 @@
-/*
+/**
 
     @fileoverview Authentication Middleware.
     Intercepts Incoming Requests to Verify the Supabase JWT Token.
