@@ -133,4 +133,110 @@ const getEvents = async (req, res) => {
 
 };
 
-module.exports = { createEvent, getEvents };
+// Update an Event
+
+const updateEvent = async (req, res) => {
+
+    try{
+
+        const eventId = req.params.id;
+        const updates = req.body;
+
+        const { data: updatedEvent, error } = await supabase
+
+            .from('events')
+            .update(updates)
+            .eq('id', eventId)
+            .select()
+            .single();
+
+        if(error){
+
+            console.error('[DB Event Update Error]: ', error);
+
+            return res.status(500).json({
+
+                status: 'Error',
+                message: 'Failed to Update Event.'
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            message: 'Event Updated Successfully',
+            data: updatedEvent
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[Event Controller Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error',
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+// Delete an Event
+
+const deleteEvent = async (req, res) => {
+
+    try{
+
+        const eventId = req.params.id;
+
+        const { error } = await supabase
+            
+            .from('events')
+            .delete()
+            .eq('id', eventId);
+
+        if(error){
+
+            console.error('[DB Event Delete Error]: ', error);
+
+            return res.status(500).json({
+
+                status: 'Error',
+                message: 'Failed to Delete Event'
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            message: 'Event Deleted Successfully'
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[Event Controller Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error',
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+module.exports = { createEvent, getEvents, updateEvent, deleteEvent };
