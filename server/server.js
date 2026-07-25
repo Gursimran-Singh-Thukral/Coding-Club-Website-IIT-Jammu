@@ -18,6 +18,7 @@ const { verifyAuth } = require('./middleware/authMiddleware');
 
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 // Middleware
 
@@ -66,6 +67,7 @@ app.get('/test-auth', verifyAuth, (req, res) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // Server Initialization
 

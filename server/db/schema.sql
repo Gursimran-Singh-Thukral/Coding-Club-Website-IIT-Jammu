@@ -34,6 +34,8 @@ CREATE TABLE public.events (
     created_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 
+    totp_secret TEXT;
+
 );
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;

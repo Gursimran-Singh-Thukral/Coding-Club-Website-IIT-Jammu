@@ -6,7 +6,7 @@
 */
 
 const express = require('express');
-const { createEvent, getEvents, updateEvent, deleteEvent } =  require('../controllers/eventController');
+const { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret } =  require('../controllers/eventController');
 const { verifyAuth } = require('../middleware/authMiddleware');
 const { requireManager } = require('../middleware/roleMiddleware');
 
@@ -15,6 +15,7 @@ const router = express.Router();
 // Router: GET /api/events 
 
 router.get('/', getEvents);
+router.get('/:id/secret', verifyAuth, requireManager, getEventSecret);
 
 // Router: POST /api/events (Protected - Only Logged-in Users can create)
 

@@ -6,6 +6,8 @@
 */
 
 const supabase = require('../config/supabaseClient');
+const { generateSecret } = require('otplib');
+
 const { get } = require('../routes/userRoutes');
 
 // Create New Event
@@ -31,6 +33,10 @@ const createEvent = async (req, res) => {
 
         }
 
+        // Get a Unique TOTP Secret for this Specific Event
+
+        const totpSecret = generateSecret();
+
         const { data: newEvent, error } = await supabase
 
             .from('events')
@@ -41,11 +47,12 @@ const createEvent = async (req, res) => {
                 event_date: event_date,
                 venue: venue,
                 category: category || 'Workshop',
-                created_by: created_by
+                created_by: created_by,
+                totp_secret: totpSecret
 
             }])
             .select()
-            .single()
+            .single();
 
         if(error){
 
@@ -239,4 +246,58 @@ const deleteEvent = async (req, res) => {
 
 };
 
-module.exports = { createEvent, getEvents, updateEvent, deleteEvent };
+const getEventSecret = async (req, res) => {
+
+    try{
+
+        const eventId = req.params.id;
+
+        const { data: event, error } = await supabase
+
+            .from('events')
+            .select('totp_secret')
+            .eq('id', eventId)
+            .single();
+
+        if(error || !event){
+
+            console.error('[DB Fetch Secret Error]: ', error);
+
+            return res.status(404).json({
+
+                status: 'Error',
+                message: 'Event Not Found'
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            data: {
+
+                totp_secret: event.totp_secret
+
+            }
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[Event Controller Error]: ', err);
+
+        return res.status(500).json({
+
+            status: 'Error', 
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+module.exports = { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret };
