@@ -19,6 +19,7 @@ const { verifyAuth } = require('./middleware/authMiddleware');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Middleware
 
@@ -57,7 +58,7 @@ app.get('/test-auth', verifyAuth, (req, res) => {
     res.status(200).json({
 
         status: 'Success',
-        message: 'You Passed the Bouncer!',
+        message: 'Authentication Test is Passed',
         user_email: req.user.email,
         user_id: req.user.id
 
@@ -68,6 +69,7 @@ app.get('/test-auth', verifyAuth, (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/profiles', profileRoutes);
 
 // Server Initialization
 

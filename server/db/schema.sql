@@ -38,5 +38,30 @@ CREATE TABLE public.events (
 
 );
 
+CREATE TABLE public.profiles (
+
+    user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
+    bio TEXT,
+    avatar_url TEXT, 
+
+    -- External Handles
+
+    github_handle TEXT,
+    codeforces_handle TEXT,
+    leetcode_handle TEXT,
+    kaggle_handle TEXT,
+    tryhackme_handle TEXT,
+
+    -- Flexible JSON Storage for Dynamic Achievements
+
+    stats JSONB DEFAULT '{}'::jsonb,
+
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+
+);
+
+-- Enabling Row Level Security
+
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
