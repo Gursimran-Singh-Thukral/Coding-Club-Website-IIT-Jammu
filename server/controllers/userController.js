@@ -11,7 +11,7 @@ const syncUserProfile = async(req, res) => {
 
     try{
 
-        const { id, email } = req.user;
+        const { id, email, user_metadata } = req.user;
 
         // Check if the User Already Exists in our Database.
 
@@ -44,6 +44,8 @@ const syncUserProfile = async(req, res) => {
 
         console.log(`[Database] Inserting new User: ${email}`);
 
+        const full_name = user_metadata?.full_name || user_metadata?.name || "Unknown";
+
         const { data: newUser, error: insertError } = await supabase
 
             .from('users')
@@ -52,6 +54,7 @@ const syncUserProfile = async(req, res) => {
                 id: id,
                 email: email,
                 student_id: email.split('@')[0].toUpperCase(),
+                full_name: full_name,
                 role: 'Student'
 
             }])

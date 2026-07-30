@@ -15,6 +15,7 @@ CREATE TYPE student_role AS ENUM ('Student', 'Field Specialist', 'Manager', 'Tec
 CREATE TABLE public.users (
 
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    full_name TEXT NOT NULL,
     email TEXT NOT NULL,
     student_id TEXT NOT NULL,
     role student_role DEFAULT 'Student' :: student_role Not NULL,
