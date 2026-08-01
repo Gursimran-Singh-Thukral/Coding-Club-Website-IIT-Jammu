@@ -163,8 +163,17 @@ function Team() {
         if (!response.ok) {
           throw new Error('Failed to fetch team details.')
         }
+        // const data = await response.json()
+        // setTeamMembers(data)
+
         const data = await response.json()
-        setTeamMembers(data)
+const updatedData = data.map(member => ({
+  ...member,
+  role: 'Frontend',
+  category: 'specialist'
+}))
+setTeamMembers(updatedData)
+
       } catch (err) {
         setError(err.message)
       } finally {
