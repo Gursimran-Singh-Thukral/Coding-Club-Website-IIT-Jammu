@@ -1,0 +1,947 @@
+/* ==========================================================================
+   Global Variables & Theme
+   ========================================================================== */
+:root {
+  /* Dark Theme Palette */
+  --bg-space: #050505;
+  --bg-slate: #121212;
+  --bg-card: rgba(18, 18, 18, 0.6);
+  
+  /* Vibrant Accents */
+  --jmx-cyan: #00f0ff;
+  --jmx-purple: #8a2be2;
+  --jmx-emerald: #00ff7f;
+  --jmx-red: #ff3366;
+  /* Typography */
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+  
+  /* Glassmorphism */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-space);
+  color: #ffffff;
+  line-height: 1.6;
+  overflow-x: hidden;
+  /* Smooth scrolling for links */
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   Background Animation Container
+   ========================================================================== */
+#cinematic-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050505 100%);
+}
+
+/* ==========================================================================
+   Glassmorphism Utilities (Refined SaaS Aesthetic)
+   ========================================================================== */
+.glass-panel {
+  background: rgba(15, 15, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.glass-nav {
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+  background: rgba(18, 18, 24, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-card:hover {
+  transform: scale(1.03);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   Typography & Accents
+   ========================================================================== */
+.text-gradient {
+  background: linear-gradient(90deg, var(--jmx-cyan), var(--jmx-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.jmx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: rgba(0, 255, 127, 0.1);
+  color: var(--jmx-emerald);
+  border: 1px solid rgba(0, 255, 127, 0.2);
+}
+
+.jmx-badge.glow {
+  box-shadow: 0 0 10px rgba(0, 255, 127, 0.3);
+}
+
+/* ==========================================================================
+   Layout & Navigation
+   ========================================================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1rem 0;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #a0a0a0;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.btn-primary {
+  background: #ffffff;
+  color: #000000 !important;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #ffffff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Restore canvas background opacity for NJACK vibe */
+#cinematic-bg {
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   Sections
+   ========================================================================== */
+section {
+  padding: 6rem 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  padding: 8rem 0;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vh;
+  background: radial-gradient(circle, rgba(138, 43, 226, 0.15) 0%, rgba(0, 240, 255, 0.05) 40%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: 5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: #a0a0a0;
+  max-width: 650px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Grid Layouts
+   ========================================================================== */
+.grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  /* Animation triggered via JS/GSAP */
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 3rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .nav-links { display: none; } /* Simplified for prototype */
+}
+
+/* ==========================================================================
+   Racing Bar Chart Leaderboard
+   ========================================================================== */
+.racing-board-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Custom Scrollbar */
+.racing-board-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+.racing-board-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.racing-board-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.racing-board-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--jmx-cyan);
+}
+
+.r-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.r-bar-label {
+  width: 140px; /* Fixed width for labels */
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.r-bar-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.r-bar-domain {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+}
+
+.r-bar-track {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Add subtle background track if desired */
+  /* background: rgba(255,255,255,0.02); */
+  /* border-radius: 4px; */
+}
+
+.r-bar-fill {
+  height: 44px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Align avatar to the right */
+  padding-right: 4px;
+  min-width: 50px; /* Ensure space for avatar even if score is 0 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: width 1s ease-out;
+}
+
+.r-bar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: #333;
+}
+
+.r-bar-score {
+  font-family: var(--font-primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d0d0d0;
+  white-space: nowrap;
+}
+
+/* Domain Colors */
+.fill-web { background: #553cf3; }
+.fill-ai { background: #8a2be2; }
+.fill-cp { background: #00b050; }
+.fill-sec { background: #d92550; }
+.fill-user { background: linear-gradient(90deg, #111, var(--jmx-cyan)); }
+
+/* Sticky user row */
+.r-bar-sticky {
+  position: sticky;
+  bottom: 0;
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--jmx-cyan);
+  padding: 1rem;
+  z-index: 10;
+  margin-top: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 -10px 30px rgba(0, 240, 255, 0.1);
+}
+
+.r-bar-sticky .r-bar-name {
+  color: var(--jmx-cyan);
+}
+
+/* ==========================================================================
+   Admin Dashboard Layout
+   ========================================================================== */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 0; /* Override container padding */
+}
+
+.admin-sidebar {
+  width: 280px;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  padding: 2rem 1.5rem;
+}
+
+.admin-sidebar-header {
+  margin-bottom: 3rem;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-nav a {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  color: #a0a0a0;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.admin-nav a:hover, .admin-nav a.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.admin-nav a.active {
+  border-left: 3px solid var(--jmx-cyan);
+  background: rgba(0, 240, 255, 0.05);
+  color: var(--jmx-cyan);
+}
+
+.admin-main {
+  flex-grow: 1;
+  margin-left: 280px;
+  padding: 3rem;
+  overflow-y: auto;
+}
+
+.status-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: rgba(255, 165, 0, 0.15);
+  color: #ffa500;
+  border: 1px solid rgba(255, 165, 0, 0.3);
+}
+
+.status-live {
+  background: rgba(0, 255, 127, 0.15);
+  color: var(--jmx-emerald);
+  border: 1px solid rgba(0, 255, 127, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 127, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(0, 255, 127, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 127, 0); }
+}
+
+/* ==========================================================================
+   Admin Forms & Role UI
+   ========================================================================== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a0a0a0;
+}
+
+.form-input, .form-select, .form-textarea {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: #fff;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23A0A0A0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem top 50%;
+  background-size: 0.65rem auto;
+}
+
+.form-select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--jmx-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.danger-zone {
+  border: 1px solid rgba(255, 68, 68, 0.4);
+  background: rgba(255, 68, 68, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.danger-zone h3 {
+  color: #ff4444;
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+/* Premium Hover Card with Bracket Effects */
+.interactive-hover-card {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  z-index: 1;
+}
+
+/* Hovered card stays centered, scales up, and lights up */
+.interactive-hover-card:hover {
+  transform: scale(1.05) translateY(0) !important;
+  box-shadow: 0 15px 35px rgba(0, 240, 255, 0.15) !important;
+  border-color: var(--jmx-cyan) !important;
+  z-index: 10;
+}
+
+/* When the grid is hovered, scale down all child cards by default */
+.grid:hover .interactive-hover-card,
+.grid:hover .glass-card,
+.grid:hover .event-card {
+  transform: scale(0.92);
+  opacity: 0.6;
+}
+
+/* Maintain active hovered card at full opacity/scale */
+.grid:hover .interactive-hover-card:hover,
+.grid:hover .glass-card:hover,
+.grid:hover .event-card:hover {
+  transform: scale(1.05) !important;
+  opacity: 1;
+}
+
+/* Push surrounding cards away horizontally relative to the hovered item */
+.grid:has(.interactive-hover-card:nth-child(1):hover) .interactive-hover-card:nth-child(n+2),
+.grid:has(.glass-card:nth-child(1):hover) .glass-card:nth-child(n+2),
+.grid:has(.event-card:nth-child(1):hover) .event-card:nth-child(n+2) {
+  transform: scale(0.92) translateX(25px) !important;
+}
+
+.grid:has(.interactive-hover-card:nth-child(2):hover) .interactive-hover-card:nth-child(1),
+.grid:has(.glass-card:nth-child(2):hover) .glass-card:nth-child(1),
+.grid:has(.event-card:nth-child(2):hover) .event-card:nth-child(1) {
+  transform: scale(0.92) translateX(-25px) !important;
+}
+.grid:has(.interactive-hover-card:nth-child(2):hover) .interactive-hover-card:nth-child(n+3),
+.grid:has(.glass-card:nth-child(2):hover) .glass-card:nth-child(n+3),
+.grid:has(.event-card:nth-child(2):hover) .event-card:nth-child(n+3) {
+  transform: scale(0.92) translateX(25px) !important;
+}
+
+.grid:has(.interactive-hover-card:nth-child(3):hover) .interactive-hover-card:nth-child(-n+2),
+.grid:has(.glass-card:nth-child(3):hover) .glass-card:nth-child(-n+2),
+.grid:has(.event-card:nth-child(3):hover) .event-card:nth-child(-n+2) {
+  transform: scale(0.92) translateX(-25px) !important;
+}
+.grid:has(.interactive-hover-card:nth-child(3):hover) .interactive-hover-card:nth-child(n+4),
+.grid:has(.glass-card:nth-child(3):hover) .glass-card:nth-child(n+4),
+.grid:has(.event-card:nth-child(3):hover) .event-card:nth-child(n+4) {
+  transform: scale(0.92) translateX(25px) !important;
+}
+
+.grid:has(.interactive-hover-card:nth-child(4):hover) .interactive-hover-card:nth-child(-n+3),
+.grid:has(.glass-card:nth-child(4):hover) .glass-card:nth-child(-n+3),
+.grid:has(.event-card:nth-child(4):hover) .event-card:nth-child(-n+3) {
+  transform: scale(0.92) translateX(-25px) !important;
+}
+.grid:has(.interactive-hover-card:nth-child(4):hover) .interactive-hover-card:nth-child(n+5),
+.grid:has(.glass-card:nth-child(4):hover) .glass-card:nth-child(n+5),
+.grid:has(.event-card:nth-child(4):hover) .event-card:nth-child(n+5) {
+  transform: scale(0.92) translateX(25px) !important;
+}
+
+.grid:has(.interactive-hover-card:nth-child(5):hover) .interactive-hover-card:nth-child(-n+4),
+.grid:has(.glass-card:nth-child(5):hover) .glass-card:nth-child(-n+4),
+.grid:has(.event-card:nth-child(5):hover) .event-card:nth-child(-n+4) {
+  transform: scale(0.92) translateX(-25px) !important;
+}
+.grid:has(.interactive-hover-card:nth-child(5):hover) .interactive-hover-card:nth-child(n+6),
+.grid:has(.glass-card:nth-child(5):hover) .glass-card:nth-child(n+6),
+.grid:has(.event-card:nth-child(5):hover) .event-card:nth-child(n+6) {
+  transform: scale(0.92) translateX(25px) !important;
+}
+
+.grid:has(.interactive-hover-card:nth-child(6):hover) .interactive-hover-card:nth-child(-n+5),
+.grid:has(.glass-card:nth-child(6):hover) .glass-card:nth-child(-n+5),
+.grid:has(.event-card:nth-child(6):hover) .event-card:nth-child(-n+5) {
+  transform: scale(0.92) translateX(-25px) !important;
+}
+
+/* Move spacing padding to the section containers to prevent pre-hover jiggle */
+#calendar, #projects {
+  padding-left: 80px !important;
+  padding-right: 80px !important;
+}
+
+#calendar .grid, #projects .grid {
+  row-gap: 4.5rem !important; /* Large vertical gap between rows specifically on the homepage */
+}
+
+.grid {
+  width: 100%;
+  max-width: 1200px; /* match your container max-width */
+  margin-left: auto;
+  margin-right: auto;
+  justify-items: center; /* keeps individual items anchored properly */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* forces equal explicit columns that won't flex-shift */
+  gap: 2rem;
+  width: 100%;
+}
+
+/* Event Hub Tab Navigation & Button Animations */
+.top-nav-buttons {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+  justify-content: center;
+}
+
+.top-tab-btn {
+  padding: 0.8rem 1.8rem;
+  color: #a0a0a0;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Push surrounding buttons away on hover with perfect symmetry (supports up to 6 buttons) */
+.top-nav-buttons:has(.top-tab-btn:nth-child(1):hover) .top-tab-btn:nth-child(n+2) {
+  transform: translateX(30px) !important;
+}
+
+.top-nav-buttons:has(.top-tab-btn:nth-child(2):hover) .top-tab-btn:nth-child(1) {
+  transform: translateX(-30px) !important;
+}
+.top-nav-buttons:has(.top-tab-btn:nth-child(2):hover) .top-tab-btn:nth-child(n+3) {
+  transform: translateX(30px) !important;
+}
+
+.top-nav-buttons:has(.top-tab-btn:nth-child(3):hover) .top-tab-btn:nth-child(-n+2) {
+  transform: translateX(-30px) !important;
+}
+.top-nav-buttons:has(.top-tab-btn:nth-child(3):hover) .top-tab-btn:nth-child(n+4) {
+  transform: translateX(30px) !important;
+}
+
+.top-nav-buttons:has(.top-tab-btn:nth-child(4):hover) .top-tab-btn:nth-child(-n+3) {
+  transform: translateX(-30px) !important;
+}
+.top-nav-buttons:has(.top-tab-btn:nth-child(4):hover) .top-tab-btn:nth-child(n+5) {
+  transform: translateX(30px) !important;
+}
+
+.top-nav-buttons:has(.top-tab-btn:nth-child(5):hover) .top-tab-btn:nth-child(-n+4) {
+  transform: translateX(-30px) !important;
+}
+.top-nav-buttons:has(.top-tab-btn:nth-child(5):hover) .top-tab-btn:nth-child(n+6) {
+  transform: translateX(30px) !important;
+}
+
+.top-nav-buttons:has(.top-tab-btn:nth-child(6):hover) .top-tab-btn:nth-child(-n+5) {
+  transform: translateX(-30px) !important;
+}
+
+.top-tab-btn:hover {
+  background: rgba(0, 240, 255, 0.05) !important;
+  border-color: rgba(0, 240, 255, 0.3) !important;
+  color: #ffffff !important;
+  transform: scale(1.12) !important;
+  box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3) !important;
+  z-index: 10;
+}
+
+.top-tab-btn.active {
+  background: rgba(0, 240, 255, 0.12) !important;
+  color: var(--jmx-cyan) !important;
+  border: 1px solid var(--jmx-cyan) !important;
+}
+
+/* Horizontal Showcase Carousel */
+.showcase-scroll-container {
+  display: flex;
+  gap: 3rem;
+  overflow-x: auto;
+  padding: 3rem 80px !important;
+  scroll-behavior: smooth;
+  margin-left: -80px;
+  margin-right: -80px;
+}
+
+.showcase-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.showcase-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.showcase-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.2);
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+
+.showcase-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.5);
+}
+
+.showcase-project-card {
+  flex: 0 0 420px; /* Constant size width, do not shrink */
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* Symmetrical In-place Hover for Showcase Cards */
+.showcase-scroll-container .showcase-project-card:hover {
+  transform: scale(1.05) translateY(0) !important;
+  box-shadow: 0 15px 35px rgba(0, 240, 255, 0.15) !important;
+  border-color: var(--jmx-cyan) !important;
+  z-index: 10;
+}
+
+/* When carousel container is hovered, scale down cards slightly */
+.showcase-scroll-container:hover .showcase-project-card {
+  transform: scale(0.92);
+  opacity: 0.6;
+}
+
+/* Keep hovered showcase card at full opacity/scale */
+.showcase-scroll-container:hover .showcase-project-card:hover {
+  transform: scale(1.05) !important;
+  opacity: 1;
+}
+
+/* Symmetrical sibling separation for showcase carousel cards */
+/* All cards preceding the hovered card push left */
+.showcase-scroll-container:has(.showcase-project-card:hover) .showcase-project-card:has(~ .showcase-project-card:hover) {
+  transform: scale(0.92) translateX(-70px) !important;
+}
+
+/* All cards succeeding the hovered card push right */
+.showcase-scroll-container .showcase-project-card:hover ~ .showcase-project-card {
+  transform: scale(0.92) translateX(70px) !important;
+}
+
+
+
+/* Compact Event Cards style from events.html */
+.event-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 350px;
+  width: 100%;
+  margin: 0 auto;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.event-card-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.event-card-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Cinematic Team View Transitions */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIndicator {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translate(-50%, 0);
+  }
+  40% {
+    transform: translate(-50%, -10px);
+  }
+  60% {
+    transform: translate(-50%, -5px);
+  }
+}
+
+/* Hide scrollbar for Team Scroll Container */
+.team-scroll-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* 1. Ensure absolute positioning elements inside cards do not overflow layout boundaries */
+/* Lock the parent layout context and prevent reflow shifting */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* Force strict column bounds so hovering near tracks doesn't cause a reflow */
+.grid-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  justify-content: center !important;
+  align-content: center !important;
+  box-sizing: border-box;
+  transform: translateZ(0);
+}
+
+/* Ensure individual cards use GPU composition without changing layout geometry */
+.glass-card, 
+.interactive-hover-card,
+.showcase-project-card {
+  position: relative;
+  box-sizing: border-box;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+/* Constrain hover effects strictly to layer transforms instead of size/margin modifications */
+.glass-card:hover,
+.interactive-hover-card:hover,
+.showcase-project-card:hover {
+  transform: translateY(-4px) translateZ(0) !important;
+}
+
+
+
+
+
