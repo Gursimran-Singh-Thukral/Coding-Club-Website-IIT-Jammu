@@ -30,10 +30,12 @@ CREATE TABLE public.events (
     title TEXT NOT NULL,
     description TEXT,
     event_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_date TIMESTAMP WITH TIME ZONE, 
     category event_category DEFAULT 'Workshop' :: event_category NOT NULL,
     
     created_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT end_after_start CHECK (end_date IS NULL OR end_date > event_date)
 
     totp_secret TEXT;
 
