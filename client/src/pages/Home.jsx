@@ -280,66 +280,14 @@ function Home() {
       </section>
 
       {/* Top Projects Showcase */}
-      <section id="projects" className="container" style={{ paddingBottom: '6rem', position: 'relative' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <h2 className="section-title" style={{ margin: 0 }}>
+     < section id="projects" className="container" style={{paddingBottom: '4rem', position: 'relative'}}>
+     <div style= {{ textAlign: 'centre', padding: '4rem 0'}}> 
+         <h2 className="section-title" style={{marginBottom: '1rem'}}>  
             <Typewriter text="Verified Showcase" speed={50} />
-          </h2>
-          {/* Scroll navigation arrows */}
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button 
-              onClick={handleScrollLeft} 
-              className="btn-outline" 
-              style={{ padding: '0.5rem 1.1rem', borderRadius: '50%', minWidth: '45px', minHeight: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '1.1rem' }}
-              title="Scroll Left"
-            >
-              ←
-            </button>
-            <button 
-              onClick={handleScrollRight} 
-              className="btn-outline" 
-              style={{ padding: '0.5rem 1.1rem', borderRadius: '50%', minWidth: '45px', minHeight: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '1.1rem' }}
-              title="Scroll Right"
-            >
-              →
-            </button>
-          </div>
-        </div>
-        <div className="showcase-scroll-container" ref={scrollContainerRef}>
-          {showcaseProjects.map((project) => (
-            <div 
-              key={project.id} 
-              className="showcase-project-card fade-in-up"
-              data-type="project"
-              onMouseEnter={handleCardMouseEnter}
-              onMouseLeave={handleCardMouseLeave}
-              style={{ padding: '1.5rem' }}
-            >
-              <div style={{ height: '200px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                 <img src={project.coverImage || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80"} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3 style={{ marginBottom: '0.25rem' }}>{project.title}</h3>
-                  <p style={{ color: '#a0a0a0', fontSize: '0.9rem', marginBottom: '1rem' }}>{project.techStack}</p>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.95rem', color: '#ccc', marginBottom: '1.5rem' }}>{project.description}</p>
-              <div style={{ marginTop: 'auto' }}>
-                <a 
-                  href={project.github || "https://github.com"} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="btn-outline" 
-                  style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'inline-block', width: '100%', textAlign: 'center' }}
-                >
-                  View Code Repository
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+         </h2>
+         <p style = {{ fontSize: '1.2rem', color: '#ccc'}}>Coming Soon...</p>
+     </div>
+      </section> 
     </main>
   )
 }
