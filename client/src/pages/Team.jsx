@@ -153,7 +153,7 @@ function Team() {
   const [error, setError] = useState(null)
   const [selectedDomain, setSelectedDomain] = useState('All')
 
-  const filterDomains = ['All', 'Web Dev', 'AI/ML', 'CP', 'Cyber sec', 'Game Dev']
+  const filterDomains = ['CO-Managers','Domain Heads']
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -434,14 +434,14 @@ setTeamMembers(updatedData)
           >
             <div>
               <h1 className="section-title" style={{ textAlign: 'left', marginBottom: '0.5rem', marginTop: 0 }}>
-                Domain <span className="text-gradient">Specialists</span>
+                Core <span className="text-gradient">Members</span>
               </h1>
               <p style={{ color: '#a0a0a0', marginBottom: '2.5rem', fontSize: '1rem', textAlign: 'left' }}>
                 Technical domain advisors and field specialists.
               </p>
 
               {/* 6 Filter Buttons — styled as JSX self-closing tags with animations */}
-              <div className="top-nav-buttons" style={{ display: 'flex', gap: '.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              <div className="top-nav-buttons" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap',justifyContent: 'center'}}>
                 {filterDomains.map((dom) => {
                   const isActive = selectedDomain === dom
                   const activeColor = '#00e5ff'
@@ -452,9 +452,9 @@ setTeamMembers(updatedData)
                       onClick={() => setSelectedDomain(dom)}
                       style={{
                         fontFamily: "'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-                        fontSize: '.88rem',
+                        fontSize: '1.1rem',
                         letterSpacing: '-.01em',
-                        padding: '.5rem 1.15rem',
+                        padding: '.9rem 2rem',
                         background: isActive ? `${activeColor}12` : 'rgba(255, 255, 255, .025)',
                         border: `1px solid ${isActive ? activeColor + '45' : 'rgba(255,255,255,.07)'}`,
                         borderRadius: 10,
@@ -511,7 +511,7 @@ setTeamMembers(updatedData)
                       }}
                     >
                       <div className="team-avatar" style={{ width: '120px', height: '120px', borderRadius: '50%', marginBottom: '1.5rem', border: '2px solid rgba(0, 229, 255, 0.15)', padding: '4px' }}>
-                        <img src={member.avatar || "https://i.pravatar.cc/300?img=12"} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                        <img src={member.avatar || "https://i.pravatar.cc/300?img=12"} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', filter: 'grayscale(100%)' }} />
                       </div>
                       <div className="team-role" style={{ fontSize: '0.88rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--jmx-cyan)', marginBottom: '0.5rem' }}>
                         {domainName}
