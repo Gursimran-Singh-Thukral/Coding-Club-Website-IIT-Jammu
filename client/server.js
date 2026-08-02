@@ -190,7 +190,7 @@ let database = {
     }
   ],
   team: [
-    { id: 2, name: "Aarav Sharma", role: "Technical Secretary", category: "coordinator", bio: "Overseeing all branch events.", avatar: "https://i.pravatar.cc/300?img=11", github: "#", linkedin: "#" },
+    { id: 2, name: "Aarav Sharma", role: "Technical Secretary (CO-Managers)", category: "coordinator", bio: "Overseeing all branch events.", avatar: "https://i.pravatar.cc/300?img=11", github: "#", linkedin: "#" },
     { id: 3, name: "Priya Singh", role: "Club Co-Manager", category: "coordinator", bio: "Managing operational logistics.", avatar: "https://i.pravatar.cc/300?img=5", github: "#", linkedin: "#" },
     { id: 4, name: "Rohan Gupta", role: "Competitive Programming Lead", category: "lead", bio: "Candidate Master on Codeforces.", avatar: "https://i.pravatar.cc/300?img=12", github: "#", linkedin: "#" },
     { id: 5, name: "Sneha Reddy", role: "Artificial Intelligence Lead", category: "lead", bio: "Machine Learning practitioner.", avatar: "https://i.pravatar.cc/300?img=47", github: "#", linkedin: "#" },
