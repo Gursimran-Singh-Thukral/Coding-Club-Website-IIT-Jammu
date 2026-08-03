@@ -7,10 +7,142 @@ import Typewriter from '../components/Typewriter'
 gsap.registerPlugin(ScrollTrigger)
 
 function Home() {
-  const [aboutData, setAboutData] = useState(null)
-  const [calendarEvents, setCalendarEvents] = useState([])
-  const [showcaseProjects, setShowcaseProjects] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [aboutData, setAboutData] = useState({
+    descriptionParagraph1: "Coding Club IIT Jammu is a group of passionate coders aimed at the overall development of coding culture in the college by introducing basic coding concepts to students who are new to the programming world and rendering a collaborative environment to the coders of the college along with providing technical assistance like websites, apps etc in college fests and other clubs.",
+    descriptionParagraph2: "The club aims at introducing a diversity of inclinations in coding to the students so that they can pursue what interests them. They regularly hold sessions on various topics such as Machine learning, Competitive Coding, Web Development, App Development, Security and Open Source.",
+    mission: "To cultivate a robust ecosystem of innovation, learning, and peer-to-peer mentorship.",
+    vision: "Empowering every student to construct world-class software."
+  })
+  const [calendarEvents, setCalendarEvents] = useState([
+    {
+      id: 1,
+      title: "Web Dev Bootcamp: APIs",
+      type: "WORKSHOP",
+      domain: "Web Dev",
+      dateLabel: "LIVE NOW",
+      description: "Look at the projector screen in the lecture hall to get the token.",
+      jmxPoints: 50,
+      status: "live",
+      coverImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80",
+      location: "MCC Lab",
+      attended: false,
+      attendees: []
+    },
+    {
+      id: 2,
+      title: "Winter Hack 2026",
+      type: "HACKATHON",
+      domain: "General",
+      dateLabel: "NOV 15 - NOV 17",
+      description: "The biggest 48-hour campus hackathon of the semester.",
+      jmxPoints: 150,
+      status: "upcoming",
+      coverImage: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+      registeredCount: 124,
+      registered: false,
+      location: "Main Computer Center",
+      attendees: []
+    },
+    {
+      id: 3,
+      title: "Intro to Web3 & Rust",
+      type: "WORKSHOP",
+      domain: "Web Dev",
+      dateLabel: "NOV 22 • 5:00 PM",
+      description: "Guest lecture and hands-on smart contract deployment.",
+      jmxPoints: 50,
+      status: "upcoming",
+      coverImage: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=600&q=80",
+      registeredCount: 42,
+      registered: false,
+      location: "LH-101",
+      attendees: []
+    },
+    {
+      id: 4,
+      title: "Intro to Git & GitHub",
+      type: "WORKSHOP",
+      domain: "Web Dev",
+      dateLabel: "Oct 12, 2026",
+      description: "Version control basics.",
+      jmxPoints: 100,
+      status: "past",
+      coverImage: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&w=600&q=80",
+      attended: true,
+      attendees: ["rohit_dev"]
+    },
+    {
+      id: 5,
+      title: "Linux Basics Workshop",
+      type: "WORKSHOP",
+      domain: "Cyber sec",
+      dateLabel: "Sep 28, 2026",
+      description: "Command line shell scripting fundamentals.",
+      jmxPoints: 50,
+      status: "past",
+      coverImage: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=600&q=80",
+      attended: false,
+      attendees: []
+    }
+  ])
+  const [showcaseProjects, setShowcaseProjects] = useState([
+    {
+      id: 1,
+      title: "NeuroTrack AI",
+      username: "rohit_dev",
+      techStack: "Machine Learning · React",
+      description: "An AI-powered attendance tracking system.",
+      jmxReward: 100,
+      coverImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
+      status: "Verified",
+      category: "project"
+    },
+    {
+      id: 2,
+      title: "DefendChain",
+      username: "rohit_dev",
+      techStack: "Cybersecurity · Rust",
+      description: "A decentralized blockchain auditing tool.",
+      jmxReward: 150,
+      coverImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
+      status: "Verified",
+      category: "project"
+    },
+    {
+      id: 3,
+      title: "EtherSync",
+      username: "priya_s",
+      techStack: "Solidity · Ethers.js",
+      description: "Real-time block stream visualizer and smart contract interface.",
+      jmxReward: 120,
+      coverImage: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80",
+      status: "Verified",
+      category: "project"
+    },
+    {
+      id: 4,
+      title: "VoxelEngine 3D",
+      username: "aditya_g",
+      techStack: "C++ · OpenGL",
+      description: "A lightweight voxel rendering engine with customized physics.",
+      jmxReward: 200,
+      coverImage: "https://images.unsplash.com/photo-1616440347437-b1c73416efc2?auto=format&fit=crop&w=800&q=80",
+      status: "Verified",
+      category: "project"
+    },
+    {
+      id: 5,
+      title: "Sentix NLP",
+      username: "nikhil_a",
+      techStack: "Python · PyTorch",
+      description: "Transformers-based sentiment analyzer with zero-shot classification.",
+      jmxReward: 110,
+      coverImage: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+      status: "Verified",
+      category: "project"
+    }
+  ])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const scrollContainerRef = useRef(null)
 
@@ -20,36 +152,6 @@ function Home() {
       { opacity: 0, y: 50 }, 
       { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 0.2 }
     )
-
-    // Fetch homepage data from backend API
-    const fetchHomeData = async () => {
-      try {
-        setLoading(true)
-        const [aboutRes, calendarRes, projectsRes] = await Promise.all([
-          fetch('/api/about'),
-          fetch('/api/events'),
-          fetch('/api/projects?verified=true')
-        ])
-
-        if (!aboutRes.ok || !calendarRes.ok || !projectsRes.ok) {
-          throw new Error('Failed to fetch homepage data from server.')
-        }
-
-        const aboutJson = await aboutRes.json()
-        const calendarJson = await calendarRes.json()
-        const projectsJson = await projectsRes.json()
-
-        setAboutData(aboutJson)
-        setCalendarEvents(calendarJson)
-        setShowcaseProjects(projectsJson)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchHomeData()
   }, [])
 
   // Initialize ScrollTrigger on elements after data loads and is rendered
@@ -199,7 +301,7 @@ function Home() {
       {/* About Us Section */}
       <section id="about" className="container" style={{ minHeight: 'auto', paddingTop: '3rem', paddingBottom: '3rem' }}>
         <div className="glass-panel gsap-about-panel" style={{ padding: '3rem', display: 'flex', gap: '3rem', alignItems: 'center', flexWrap: 'wrap', opacity: 0 }}>
-          <div style={{ flex: '1 1 400px' }}>
+          <div className="about-text-col">
             <h2 className="section-title gsap-about-child" style={{ textAlign: 'left', marginBottom: '1.5rem', opacity: 0 }}>
               About <span className="text-gradient">Us</span>
             </h2>
@@ -210,7 +312,7 @@ function Home() {
               {aboutData?.descriptionParagraph2 || ""}
             </p>
           </div>
-          <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="about-cards-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="glass-card gsap-about-child" style={{ borderLeft: '4px solid var(--jmx-cyan)', opacity: 0 }}>
               <h4 style={{ color: 'var(--jmx-cyan)', fontWeight: 700, marginBottom: '0.25rem' }}>Our Mission</h4>
               <p style={{ color: '#ccc', fontSize: '0.95rem' }}>{aboutData?.mission || ""}</p>

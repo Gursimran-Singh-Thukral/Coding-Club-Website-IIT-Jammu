@@ -162,6 +162,10 @@ a {
   align-items: center;
 }
 
+.hamburger {
+  display: none;
+}
+
 .nav-links a {
   font-size: 0.95rem;
   font-weight: 500;
@@ -262,6 +266,14 @@ section {
   text-align: center;
 }
 
+/* About Us Layout Columns */
+.about-text-col {
+  flex: 1 1 400px;
+}
+.about-cards-col {
+  flex: 1 1 300px;
+}
+
 /* ==========================================================================
    Grid Layouts
    ========================================================================== */
@@ -290,10 +302,91 @@ section {
 /* ==========================================================================
    Responsive
    ========================================================================== */
+@media (max-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .hero h1 { font-size: 4rem; }
+  .container { padding: 0 1.5rem; }
+  .showcase-scroll-container { padding: 3rem 1.5rem !important; margin-left: -1.5rem; margin-right: -1.5rem; }
+  .gsap-about-panel { flex-direction: column; text-align: center; }
+  .gsap-about-panel > div { text-align: center; }
+  .about-text-col, .about-cards-col { flex: 1 1 auto; width: 100%; }
+  .section-title { text-align: center !important; }
+  .admin-sidebar { width: 220px; }
+  .admin-main { margin-left: 220px; padding: 2rem; }
+}
+
 @media (max-width: 768px) {
-  .hero h1 { font-size: 3rem; }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  .nav-links { display: none; } /* Simplified for prototype */
+  .hero h1 { font-size: 2.5rem; }
+  .hero p { font-size: 1rem; }
+  .section-title { font-size: 2rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+  
+  /* Reset padding and layout for smaller devices */
+  #calendar, #projects { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .showcase-scroll-container { 
+    padding: 2rem 1rem !important; 
+    margin-left: -1rem; 
+    margin-right: -1rem; 
+    gap: 1.5rem;
+  }
+  .showcase-project-card { 
+    flex: 0 0 85vw; /* Make cards take most of the screen width */
+  }
+
+  /* Admin Dashboard Mobile Adjustments */
+  .admin-layout { flex-direction: column; }
+  .admin-sidebar { 
+    width: 100%; 
+    height: auto; 
+    position: relative; 
+    padding: 1rem;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .admin-sidebar-header { margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+  .admin-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; display: none; }
+  .admin-nav.mobile-open { display: flex; flex-direction: column; width: 100%; }
+  .admin-main { margin-left: 0; padding: 1.5rem 1rem; }
+  
+  /* Navbar Mobile Adjustments */
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 1.5rem;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav-links.mobile-open {
+    display: flex;
+  }
+  .hamburger {
+    display: block !important;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  /* Buttons and interactive elements on touch */
+  .top-nav-buttons { flex-wrap: wrap; justify-content: center; }
+  .top-tab-btn { padding: 0.6rem 1rem; font-size: 0.8rem; }
+  
+  /* Admin Profile specific grids */
+  .admin-profile-grid { display: flex !important; flex-direction: column !important; }
+  .admin-cockpit-grid { display: flex !important; flex-direction: column !important; gap: 1rem !important; }
+  
+  /* Remove sibling push hover effects on mobile */
+  .top-nav-buttons:has(.top-tab-btn:hover) .top-tab-btn { transform: none !important; }
+  .top-tab-btn:hover { transform: scale(1.05) !important; }
+  .showcase-scroll-container:has(.showcase-project-card:hover) .showcase-project-card { transform: none !important; }
+  .grid:has(.interactive-hover-card:hover) .interactive-hover-card { transform: none !important; }
 }
 
 /* ==========================================================================
@@ -913,7 +1006,7 @@ section {
 /* Force strict column bounds so hovering near tracks doesn't cause a reflow */
 .grid-3 {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2rem !important;
   width: 100% !important;
   justify-content: center !important;
