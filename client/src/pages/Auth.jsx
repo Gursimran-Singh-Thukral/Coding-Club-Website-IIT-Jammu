@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 // ── Interactive Mesh Grid Background Component ──────────────────────────────
 // Renders a professional, subtle 3D perspective grid canvas.
@@ -156,9 +158,11 @@ function InteractiveGridMesh() {
 
 // ── Auth Page Component ──────────────────────────────────────────────────────
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true) // Switch between Sign In & Sign Up
-  const [form, setForm] = useState({ username: '', password: '', email: '' })
+  const [form, setForm] = useState({ username: 'rohit_dev' }) // Default to student persona
   const [toast, setToast] = useState(null)
+  
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
   const showToast = (text, success = true) => {
     setToast({ text, success })
@@ -166,13 +170,23 @@ export default function Auth() {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!form.username || !form.password || (!isLogin && !form.email)) {
-      showToast('Please fill in all required fields.', false)
+    if (e && e.preventDefault) e.preventDefault()
+    if (!form.username) {
+      showToast('Please select a persona first.', false)
       return
     }
     
-    showToast(`${isLogin ? 'Sign In' : 'Sign Up'} successful! Welcome back, ${form.username}.`, true)
+    // Perform simulated login
+    login(form.username)
+    
+    const isAdmin = form.username.toLowerCase().includes('admin') || form.username.toLowerCase() === 'aryancodes'
+    
+    showToast(`Google Sign In successful! Welcome, ${form.username}.`, true)
+    
+    // Redirect after a short delay so they can see the toast
+    setTimeout(() => {
+      navigate(isAdmin ? '/admin' : '/profile')
+    }, 1000)
   }
 
   return (
@@ -293,7 +307,7 @@ export default function Auth() {
 
       <div className="auth-container">
         <div className="auth-glass-card">
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             {/* IITJ Logo Outline */}
             <div style={{
               width: 52, height: 52, borderRadius: '12px',
@@ -307,65 +321,89 @@ export default function Auth() {
               &lt;/&gt;
             </div>
             <h2 style={{ color: '#fff', margin: '0 0 0.4rem 0', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
-              {isLogin ? 'Sign In' : 'Create Account'}
+              Sign In
             </h2>
-            <p style={{ color: '#666', margin: 0, fontSize: '0.85rem', lineHeight: 1.4 }}>
-              Enter your credentials to access the Coding Club portal.
+            <p style={{ color: '#888', margin: 0, fontSize: '0.85rem', lineHeight: 1.4 }}>
+              Authenticate using your institute Google account to access the Coding Club portal.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Username */}
-            <div className="auth-input-group">
-              <label className="auth-label">Username</label>
-              <input
-                type="text"
-                className="auth-input"
-                placeholder="e.g. rohit_dev"
-                value={form.username}
-                onChange={e => setForm({ ...form, username: e.target.value })}
-              />
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label className="auth-label" style={{ marginBottom: '0.6rem' }}>Select Persona for Demo</label>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                onClick={() => setForm({ ...form, username: 'rohit_dev' })}
+                style={{
+                  flex: 1,
+                  padding: '0.6rem',
+                  borderRadius: '8px',
+                  border: `1px solid ${form.username === 'rohit_dev' ? '#00e5ff' : 'rgba(255, 255, 255, 0.08)'}`,
+                  background: form.username === 'rohit_dev' ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                  color: form.username === 'rohit_dev' ? '#00e5ff' : '#a0a0a0',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Student
+              </button>
+              <button 
+                onClick={() => setForm({ ...form, username: 'aryancodes' })}
+                style={{
+                  flex: 1,
+                  padding: '0.6rem',
+                  borderRadius: '8px',
+                  border: `1px solid ${form.username === 'aryancodes' ? '#00e5ff' : 'rgba(255, 255, 255, 0.08)'}`,
+                  background: form.username === 'aryancodes' ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                  color: form.username === 'aryancodes' ? '#00e5ff' : '#a0a0a0',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Admin (Secretary)
+              </button>
             </div>
+          </div>
 
-            {/* Email (Registration only) */}
-            {!isLogin && (
-              <div className="auth-input-group">
-                <label className="auth-label">Email Address</label>
-                <input
-                  type="email"
-                  className="auth-input"
-                  placeholder="e.g. name@iitjammu.ac.in"
-                  value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-            )}
-
-            {/* Password */}
-            <div className="auth-input-group" style={{ marginBottom: '1.75rem' }}>
-              <label className="auth-label">Password</label>
-              <input
-                type="password"
-                className="auth-input"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-              />
-            </div>
-
-            {/* Submit */}
-            <button type="submit" className="auth-submit-btn">
-              {isLogin ? 'Sign In' : 'Sign Up'}
-            </button>
-          </form>
-
-          {/* Toggle link */}
-          <p style={{ color: '#555', fontSize: '0.82rem', textAlign: 'center', marginTop: '1.75rem', marginBottom: 0 }}>
-            {isLogin ? "New member? " : "Already have an account? "}
-            <span className="auth-toggle-link" onClick={() => setIsLogin(!isLogin)}>
-              {isLogin ? 'Create one now' : 'Sign in'}
-            </span>
-          </p>
+          <button 
+            onClick={handleSubmit} 
+            className="auth-submit-btn"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              background: '#fff',
+              color: '#1f1f1f',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.85rem',
+              fontWeight: 600,
+              width: '100%',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(255,255,255,0.15)',
+              transition: 'all 0.25s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)'
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(255,255,255,0.25)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(255,255,255,0.15)'
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18">
+              <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.69-1.55 2.69-3.83 2.69-6.57z"/>
+              <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.84.87-3.06.87-2.35 0-4.34-1.58-5.05-3.7H.92v2.32C2.4 16.03 5.46 18 9 18z"/>
+              <path fill="#FBBC05" d="M3.95 10.75A5.39 5.39 0 0 1 3.6 9c0-.6.1-1.19.25-1.75V4.93H.92A8.99 8.99 0 0 0 0 9c0 1.5.37 2.93.92 4.22l3.03-2.47z"/>
+              <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.4C13.46.97 11.41 0 9 0 5.46 0 2.4 1.97.92 4.93l3.03 2.42C4.66 5.16 6.65 3.58 9 3.58z"/>
+            </svg>
+            Sign in with Google
+          </button>
         </div>
       </div>
 
