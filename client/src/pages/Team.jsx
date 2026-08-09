@@ -148,8 +148,19 @@ function InteractiveGridMesh() {
 }
 
 function Team() {
-  const [teamMembers, setTeamMembers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [teamMembers, setTeamMembers] = useState([
+    { id: 2, name: "Aarav Sharma", role: "Technical Secretary", category: "coordinator", bio: "Overseeing all branch events.", avatar: "https://i.pravatar.cc/300?img=11", github: "#", linkedin: "#" },
+    { id: 3, name: "Priya Singh", role: "Club Co-Manager", category: "coordinator", bio: "Managing operational logistics.", avatar: "https://i.pravatar.cc/300?img=5", github: "#", linkedin: "#" },
+    { id: 4, name: "Rohan Gupta", role: "Competitive Programming Lead", category: "lead", bio: "Candidate Master on Codeforces.", avatar: "https://i.pravatar.cc/300?img=12", github: "#", linkedin: "#" },
+    { id: 5, name: "Sneha Reddy", role: "Artificial Intelligence Lead", category: "lead", bio: "Machine Learning practitioner.", avatar: "https://i.pravatar.cc/300?img=47", github: "#", linkedin: "#" },
+    { id: 6, name: "Kabir Malhotra", role: "Cybersecurity Lead", category: "lead", bio: "CTF player and penetration tester.", avatar: "https://i.pravatar.cc/300?img=18", github: "#", linkedin: "#" },
+    { id: 7, name: "Isha Patel", role: "Domain Specialist (Web Dev)", category: "specialist", bio: "Fullstack React & Node engineer.", avatar: "https://i.pravatar.cc/300?img=32", github: "#", linkedin: "#" },
+    { id: 8, name: "Nikhil Verma", role: "Domain Specialist (AI/ML)", category: "specialist", bio: "Computer Vision and NLP enthusiast.", avatar: "https://i.pravatar.cc/300?img=15", github: "#", linkedin: "#" },
+    { id: 9, name: "Karan Johar", role: "Domain Specialist (CP)", category: "specialist", bio: "Expert at trees and dynamic programming algorithms.", avatar: "https://i.pravatar.cc/300?img=8", github: "#", linkedin: "#" },
+    { id: 10, name: "Simran Kaur", role: "Domain Specialist (Cyber sec)", category: "specialist", bio: "Penetration tester and network defense enthusiast.", avatar: "https://i.pravatar.cc/300?img=23", github: "#", linkedin: "#" },
+    { id: 11, name: "Aditya Roy", role: "Domain Specialist (Game Dev)", category: "specialist", bio: "3D physics engine and Unity gameplay logic designer.", avatar: "https://i.pravatar.cc/300?img=60", github: "#", linkedin: "#" }
+  ])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selectedDomain, setSelectedDomain] = useState('All')
 
@@ -310,7 +321,7 @@ setTeamMembers(updatedData)
               position: 'absolute',
               bottom: 0,
               right: 0,
-              width: '65vw',
+              width: '100%',
               height: '75vh',
               backdropFilter: 'blur(35px) brightness(0.65)',
               WebkitBackdropFilter: 'blur(35px) brightness(0.65)',
