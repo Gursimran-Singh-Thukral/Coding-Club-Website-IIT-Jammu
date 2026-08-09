@@ -3,8 +3,79 @@ import Typewriter from '../components/Typewriter'
 
 function Events() {
   const [activeTab, setActiveTab] = useState('tab-live')
-  const [events, setEvents] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [events, setEvents] = useState([
+    {
+      id: 1,
+      title: "Web Dev Bootcamp: APIs",
+      type: "WORKSHOP",
+      domain: "Web Dev",
+      dateLabel: "LIVE NOW",
+      description: "Look at the projector screen in the lecture hall to get the token.",
+      jmxPoints: 50,
+      status: "live",
+      coverImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80",
+      location: "MCC Lab",
+      attended: false,
+      attendees: []
+    },
+    {
+      id: 2,
+      title: "Winter Hack 2026",
+      type: "HACKATHON",
+      domain: "General",
+      dateLabel: "NOV 15 - NOV 17",
+      description: "The biggest 48-hour campus hackathon of the semester.",
+      jmxPoints: 150,
+      status: "upcoming",
+      coverImage: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+      registeredCount: 124,
+      registered: false,
+      location: "Main Computer Center",
+      attendees: []
+    },
+    {
+      id: 3,
+      title: "Intro to Web3 & Rust",
+      type: "WORKSHOP",
+      domain: "Web Dev",
+      dateLabel: "NOV 22 • 5:00 PM",
+      description: "Guest lecture and hands-on smart contract deployment.",
+      jmxPoints: 50,
+      status: "upcoming",
+      coverImage: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=600&q=80",
+      registeredCount: 42,
+      registered: false,
+      location: "LH-101",
+      attendees: []
+    },
+    {
+      id: 4,
+      title: "Intro to Git & GitHub",
+      type: "WORKSHOP",
+      domain: "Web Dev",
+      dateLabel: "Oct 12, 2026",
+      description: "Version control basics.",
+      jmxPoints: 100,
+      status: "past",
+      coverImage: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&w=600&q=80",
+      attended: true,
+      attendees: ["rohit_dev"]
+    },
+    {
+      id: 5,
+      title: "Linux Basics Workshop",
+      type: "WORKSHOP",
+      domain: "Cyber sec",
+      dateLabel: "Sep 28, 2026",
+      description: "Command line shell scripting fundamentals.",
+      jmxPoints: 50,
+      status: "past",
+      coverImage: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=600&q=80",
+      attended: false,
+      attendees: []
+    }
+  ])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   
   // Transition State for Tab switching particle explosions
@@ -14,26 +85,6 @@ function Events() {
   const [selectedEventForOtp, setSelectedEventForOtp] = useState(null)
   const [otpToken, setOtpToken] = useState('')
   const [validationMsg, setValidationMsg] = useState({ text: '', isSuccess: false })
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch('/api/events')
-        if (!response.ok) {
-          throw new Error('Failed to fetch events from backend.')
-        }
-        const data = await response.json()
-        setEvents(data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchEvents()
-  }, [])
 
   const handleVerifyAttendance = async (e) => {
     e.preventDefault()

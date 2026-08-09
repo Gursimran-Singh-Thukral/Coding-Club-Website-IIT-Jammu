@@ -231,8 +231,8 @@ function isValidToken(eventId, token) {
 app.get('/api/about', (req, res) => {
   res.json({
     heroSubtitle: "The official hub for IIT Jammu's developer ecosystem.",
-    descriptionParagraph1: "Coding Club IIT Jammu is a group of passionate coders.",
-    descriptionParagraph2: "The club aims at introducing a diversity of inclinations in coding.",
+    descriptionParagraph1: "Coding Club IIT Jammu is a group of passionate coders aimed at the overall development of coding culture in the college by introducing basic coding concepts to students who are new to the programming world and rendering a collaborative environment to the coders of the college along with providing technical assistance like websites, apps etc in college fests and other clubs.",
+    descriptionParagraph2: "The club aims at introducing a diversity of inclinations in coding to the students so that they can pursue what interests them. They regularly hold sessions on various topics such as Machine learning, Competitive Coding, Web Development, App Development, Security and Open Source.",
     mission: "To cultivate a robust ecosystem of innovation, learning, and peer-to-peer mentorship.",
     vision: "Empowering every student to construct world-class software."
   })
