@@ -8,7 +8,9 @@
 const supabase = require('../config/supabaseClient');
 const { generateSecret } = require('otplib');
 
-const { get } = require('../routes/userRoutes');
+// Fields a Manager is Allowed to Change via PUT - Never totp_secret, created_by, etc.
+
+const UPDATABLE_EVENT_FIELDS = ['title', 'description', 'event_date', 'venue', 'category'];
 
 // Create New Event
 
@@ -147,7 +149,16 @@ const updateEvent = async (req, res) => {
     try{
 
         const eventId = req.params.id;
-        const updates = req.body;
+
+        // Whitelist: Prevents a Manager Request from Tampering with totp_secret or created_by
+
+        const updates = {};
+
+        for(const field of UPDATABLE_EVENT_FIELDS){
+
+            if(req.body[field] !== undefined) updates[field] = req.body[field];
+
+        }
 
         const { data: updatedEvent, error } = await supabase
 

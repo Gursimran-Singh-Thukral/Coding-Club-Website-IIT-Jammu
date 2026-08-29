@@ -303,7 +303,7 @@ app.post('/api/projects/submit', (req, res) => {
 // ─── QR Attendance System ──────────────────────────────────────────────────
 
 // Get current rotating QR token for an event (used by AttendanceHost page)
-app.get('/api/admin/events/:id/qrtoken', (req, res) => {
+app.get('http://localhost:5000/api/admin/events/:id/qrtoken', (req, res) => {
   const eventId = parseInt(req.params.id)
   const event = database.events.find(e => e.id === eventId)
   if (!event) return res.status(404).json({ error: 'Event not found.' })
@@ -375,7 +375,7 @@ app.post('/api/admin/profile/avatar', (req, res) => {
 })
 
 // Edit any event (domain-gated on the frontend)
-app.put('/api/admin/events/:id', (req, res) => {
+app.put('http://localhost:5000/api/admin/events/:id', (req, res) => {
   const eventId = parseInt(req.params.id)
   const event = database.events.find(e => e.id === eventId)
   if (!event) return res.status(404).json({ error: 'Event not found.' })
@@ -393,7 +393,7 @@ app.put('/api/admin/events/:id', (req, res) => {
 })
 
 // Make an upcoming event go live
-app.post('/api/admin/events/:id/golive', (req, res) => {
+app.post('http://localhost:5000/api/admin/events/:id/golive', (req, res) => {
   const eventId = parseInt(req.params.id)
   const event = database.events.find(e => e.id === eventId)
   if (!event) return res.status(404).json({ error: 'Event not found.' })
@@ -405,7 +405,7 @@ app.post('/api/admin/events/:id/golive', (req, res) => {
 })
 
 // Create new event
-app.post('/api/admin/events/create', (req, res) => {
+app.post('http://localhost:5000/api/admin/events/create', (req, res) => {
   const { title, type, dateLabel, description, jmxPoints, coverImage, location, domain } = req.body
   if (!title || !type || !description) return res.status(400).json({ error: 'Title, type, and description required.' })
 
@@ -489,7 +489,7 @@ app.post('/api/admin/jobs/transfer', (req, res) => {
 // Get attendee list for a past event
 // In production: JOIN events.attendees with users table for full profile data.
 // Here we enrich the stored username array with mock profile data.
-app.get('/api/admin/events/:id/attendees', (req, res) => {
+app.get('http://localhost:5000/api/admin/events/:id/attendees', (req, res) => {
   const eventId = parseInt(req.params.id)
   const event = database.events.find(e => e.id === eventId)
   if (!event) return res.status(404).json({ error: 'Event not found.' })

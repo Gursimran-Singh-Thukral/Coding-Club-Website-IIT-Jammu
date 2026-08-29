@@ -7,17 +7,17 @@
 
 const express = require('express');
 const { syncUserProfile } = require('../controllers/userController');
-const { verifyAuth } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 /* 
 
     Route: GET /api/users/profile
-    The verifyAuth middleware Runs First. If Successful, syncUserProfile Runs.
+    The verifyToken middleware Runs First. If Successful, syncUserProfile Runs.
 
 */
 
-router.get('/profile', verifyAuth, syncUserProfile);
+router.get('/profile', verifyToken, syncUserProfile);
 
 module.exports = router;

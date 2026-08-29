@@ -299,7 +299,7 @@ export default function Auth() {
               width: 52, height: 52, borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.02)',
               border: '1px solid rgba(0, 229, 255, 0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              alignItems: 'center',
               margin: '0 auto 1.25rem', fontSize: '1.25rem', color: '#00e5ff',
               fontFamily: 'monospace', fontWeight: 800,
               boxShadow: '0 0 15px rgba(0, 229, 255, 0.1)'

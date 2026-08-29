@@ -1,58 +1,37 @@
-/**
+const jwt = require('jsonwebtoken');
 
-    @fileoverview Authentication Middleware.
-    Intercepts Incoming Requests to Verify the Supabase JWT Token.
-    If Valid, it attaches the User Data to the Request. If invalid, it blocks the Request.
-
-*/
-
-const supabase = require('../config/supabaseClient');
-
-const verifyAuth = async (req, res, next) => {
+const verifyToken = async(req, res, next) => {
 
     try{
 
-        // Check if Authorization Header Exists
+        // Grab Token from Cookies
 
-        const authHeader = req.headers.authorization;
+        let token = req.cookies?.accessToken;
 
-        if(!authHeader || !authHeader.startsWith('Bearer ')){
+        // Fallback for Testing Tools via Headers
+
+        if(!token && req.headers.authorization?.startsWith('Bearer '))
+
+            token = req.headers.authorization.split(' ')[1];
+
+        if(!token){
 
             return res.status(401).json({
 
-                status: 'Error',
-                message: 'Unauthorized: Missed or Malformed Token'
+                status: 'Error', 
+                message: 'Unauthorized: Missing Token'
 
             });
 
         }
 
-        // Extract the Token
+        // Verify Custom JWT 
 
-        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_access_key');
 
-        // Ask Supabase to Validate the Token and Fetch the User
+        // Attach to the Request for the Next Route to Use
 
-        const { data, error } = await supabase.auth.getUser(token);
-
-        if(error || !data.user){
-
-            console.error('[Auth Error]: Invalid or Expired Token');
-
-            return res.status(401).json({
-
-                status: 'Error',
-                message: 'Unauthorized: Invalid or Expired Token'
-
-            });
-
-        }
-
-        // Token is Valid. Attach the User Object to the Request for the Controllers to Use.
-
-        req.user = data.user;
-
-        // Pass Control to Next Function
+        req.user = decoded;
 
         next();
 
@@ -60,17 +39,17 @@ const verifyAuth = async (req, res, next) => {
 
     catch(err){
 
-        console.error('[Middleware Error]: ', err.message);
+        console.error('[Middleware Error]: Invalid Token');
 
-        return res.status(500).json({
+        return res.status(401).json({
 
-            status: 'Error',
-            message: 'Internal Server Error During Authentication'
+            status: 'Error', 
+            message: 'Unauthorized: Invalid or Expired Token'
 
-        });
+        })
 
     }
 
-}
+};
 
-module.exports = { verifyAuth };
+module.exports = { verifyToken };

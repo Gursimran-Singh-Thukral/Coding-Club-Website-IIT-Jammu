@@ -386,7 +386,7 @@ export default function AdminEvents() {
 
   const handleGoLive = async (eventId) => {
     try {
-      const res = await fetch(`/api/admin/events/${eventId}/golive`, { method:'POST' })
+      const res = await fetch(`http://localhost:5000/api/admin/events/${eventId}/golive`, { method:'POST' })
       const data = await res.json()
       if (!res.ok) return showToast(data.error || 'Failed.', false)
       setEvents(prev => prev.map(e => e.id === eventId ? { ...e, status:'live', dateLabel:'LIVE NOW' } : e))
@@ -402,7 +402,7 @@ export default function AdminEvents() {
   // Save edits to an existing event
   const handleSaveEdit = async (eventId, form) => {
     try {
-      const res = await fetch(`/api/admin/events/${eventId}`, {
+      const res = await fetch(`http://localhost:5000/api/admin/events/${eventId}`, {
         method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(form),
       })
       const data = await res.json()
@@ -416,7 +416,7 @@ export default function AdminEvents() {
   // Create a new event
   const handleCreateEvent = async (form) => {
     try {
-      const res = await fetch('/api/admin/events/create', {
+      const res = await fetch('http://localhost:5000/api/admin/events/create', {
         method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(form),
       })
       const data = await res.json()

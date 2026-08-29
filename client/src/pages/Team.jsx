@@ -240,8 +240,8 @@ function Team() {
     )
   }
 
-  const cinematicMembers = teamMembers.filter(m => m.category === 'coordinator' || m.category === 'lead')
-  const specialistMembers = teamMembers.filter(m => m.category !== 'coordinator' && m.category !== 'lead' && m.category !== 'faculty')
+  const cinematicMembers = (Array.isArray(teamMembers) ? teamMembers : []).filter(m => m.category === 'coordinator' || m.category === 'lead')
+  const specialistMembers = (Array.isArray(teamMembers) ? teamMembers : []).filter(m => m.category !== 'coordinator' && m.category !== 'lead' && m.category !== 'faculty')
 
   const filteredSpecialists = selectedDomain === 'All'
     ? specialistMembers
@@ -515,10 +515,10 @@ function Team() {
                       </p>
                       <div className="team-socials" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                         {member.github && (
-                          <a href={member.github} target="_blank" rel="noreferrer" style={{ width: '35px', height: '35px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', color: '#fff', textDecoration: 'none', transition: 'background 0.3s' }}>GH</a>
+                          <a href={member.github} target="_blank" rel="noreferrer" style={{ width: '35px', height: '35px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', alignItems: 'center', fontSize: '0.8rem', color: '#fff', textDecoration: 'none', transition: 'background 0.3s' }}>GH</a>
                         )}
                         {member.linkedin && (
-                          <a href={member.linkedin} target="_blank" rel="noreferrer" style={{ width: '35px', height: '35px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', color: '#fff', textDecoration: 'none', transition: 'background 0.3s' }}>LN</a>
+                          <a href={member.linkedin} target="_blank" rel="noreferrer" style={{ width: '35px', height: '35px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', alignItems: 'center', fontSize: '0.8rem', color: '#fff', textDecoration: 'none', transition: 'background 0.3s' }}>LN</a>
                         )}
                       </div>
                     </div>
