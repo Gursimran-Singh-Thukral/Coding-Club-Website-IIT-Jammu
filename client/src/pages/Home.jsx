@@ -16,10 +16,12 @@ function Home() {
 
   useEffect(() => {
     // Animate hero elements on load
-    gsap.fromTo('.gsap-hero-elem', 
-      { opacity: 0, y: 50 }, 
-      { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 0.2 }
-    )
+    if (document.querySelector('.gsap-hero-elem')) {
+      gsap.fromTo('.gsap-hero-elem', 
+        { opacity: 0, y: 50 }, 
+        { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 0.2 }
+      )
+    }
 
     // Fetch homepage data from backend API
     const fetchHomeData = async () => {
@@ -40,8 +42,8 @@ function Home() {
         const projectsJson = await projectsRes.json()
 
         setAboutData(aboutJson)
-        setCalendarEvents(calendarJson)
-        setShowcaseProjects(projectsJson)
+        setCalendarEvents(calendarJson || [])
+        setShowcaseProjects(projectsJson || [])
       } catch (err) {
         setError(err.message)
       } finally {
@@ -165,8 +167,12 @@ function Home() {
     )
   }
 
+  // Guarantee calendarEvents is treated as an array before filtering
+  const safeEvents = Array.isArray(calendarEvents) ? calendarEvents : [];
+  
   // Filter events to only display 'live' and 'upcoming' ones, putting 'live' first
-  const filteredEvents = calendarEvents.filter(event => event.status === 'live' || event.status === 'upcoming')
+  const filteredEvents = safeEvents.filter(event => event?.status === 'live' || event?.status === 'upcoming')
+  
   const sortedEvents = [...filteredEvents].sort((a, b) => {
     if (a.status === 'live' && b.status !== 'live') return -1
     if (a.status !== 'live' && b.status === 'live') return 1
@@ -290,7 +296,7 @@ function Home() {
             <button 
               onClick={handleScrollLeft} 
               className="btn-outline" 
-              style={{ padding: '0.5rem 1.1rem', borderRadius: '50%', minWidth: '45px', minHeight: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '1.1rem' }}
+              style={{ padding: '0.5rem 1.1rem', borderRadius: '50%', minWidth: '45px', minHeight: '45px', alignItems: 'center', cursor: 'pointer', fontSize: '1.1rem' }}
               title="Scroll Left"
             >
               ←
@@ -298,7 +304,7 @@ function Home() {
             <button 
               onClick={handleScrollRight} 
               className="btn-outline" 
-              style={{ padding: '0.5rem 1.1rem', borderRadius: '50%', minWidth: '45px', minHeight: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '1.1rem' }}
+              style={{ padding: '0.5rem 1.1rem', borderRadius: '50%', minWidth: '45px', minHeight: '45px', alignItems: 'center', cursor: 'pointer', fontSize: '1.1rem' }}
               title="Scroll Right"
             >
               →
@@ -306,7 +312,7 @@ function Home() {
           </div>
         </div>
         <div className="showcase-scroll-container" ref={scrollContainerRef}>
-          {showcaseProjects.map((project) => (
+          {(Array.isArray(showcaseProjects) ? showcaseProjects : (showcaseProjects?.data || [])).map((project) => (
             <div 
               key={project.id} 
               className="showcase-project-card fade-in-up"
@@ -315,7 +321,7 @@ function Home() {
               onMouseLeave={handleCardMouseLeave}
               style={{ padding: '1.5rem' }}
             >
-              <div style={{ height: '200px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+              <div style={{ height: '200px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', marginBottom: '1rem', alignItems: 'center', overflow: 'hidden' }}>
                  <img src={project.coverImage || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80"} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

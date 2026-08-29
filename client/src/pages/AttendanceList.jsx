@@ -48,7 +48,7 @@ export default function AttendanceList() {
 
   useEffect(() => {
     if (!eventId) { setError('Invalid event ID in URL.'); return }
-    fetch(`/api/admin/events/${eventId}/attendees`)
+    fetch(`http://localhost:5000/api/admin/events/${eventId}/attendees`)
       .then(r => r.json())
       .then(d => {
         if (d.error) setError(d.error)

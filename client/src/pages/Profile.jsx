@@ -25,7 +25,17 @@ function Profile() {
   const fetchProfile = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/profile')
+      const response = await fetch('http://localhost:5000/api/profile', {
+
+        method: 'GET', 
+        headers: {
+
+          'Content-Type': 'application/json'
+
+        },
+        credentials: 'include'
+
+      });
       if (!response.ok) {
         throw new Error('Failed to retrieve profile data.')
       }
@@ -303,7 +313,7 @@ function Profile() {
               {/* GitHub */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
                 {renderConnectionDot(!!profile?.accounts?.github)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#181b20', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'center', flexShrink: 0, zIndex: 3 }}>GH</div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#181b20', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'center', flexShrink: 0, zIndex: 3 }}>GH</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>GitHub</h4>
                   <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.accounts?.github ? `@${profile.accounts.github}` : 'Not Connected'}</p>
@@ -318,7 +328,7 @@ function Profile() {
               {/* LinkedIn */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
                 {renderConnectionDot(!!profile?.accounts?.linkedin)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#0077b5', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>IN</div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#0077b5', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>IN</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>LinkedIn</h4>
                   <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.accounts?.linkedin ? `@${profile.accounts.linkedin}` : 'Not Connected'}</p>
@@ -333,7 +343,7 @@ function Profile() {
               {/* LeetCode */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
                 {renderConnectionDot(!!profile?.accounts?.leetcode)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#f89f1b', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>LC</div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#f89f1b', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>LC</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>LeetCode</h4>
                   <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.accounts?.leetcode ? `@${profile.accounts.leetcode}` : 'Not Connected'}</p>
@@ -348,7 +358,7 @@ function Profile() {
               {/* Codeforces */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
                 {renderConnectionDot(!!profile?.accounts?.codeforces)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#445f9d', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>CF</div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#445f9d', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>CF</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>Codeforces</h4>
                   <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.accounts?.codeforces ? `@${profile.accounts.codeforces}` : 'Not Connected'}</p>

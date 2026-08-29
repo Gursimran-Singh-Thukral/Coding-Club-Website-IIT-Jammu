@@ -13,7 +13,9 @@ import AttendanceConfirm from './pages/AttendanceConfirm'
 import AttendanceList from './pages/AttendanceList'
 import Auth from './pages/Auth'
 
-// These routes are standalone full-screen pages (no navbar/bg canvas)
+// NEW: Import the AuthProvider
+import { AuthProvider } from './context/AuthContext'
+
 const STANDALONE_ROUTES = ['/admin/attendance', '/admin/attendance-list', '/attend']
 
 function App() {
@@ -21,27 +23,24 @@ function App() {
   const isStandalone = STANDALONE_ROUTES.some(r => location.pathname.startsWith(r))
 
   return (
-    <>
-      {/* Dynamic Particle Canvas Background — hidden on standalone pages */}
+    // Wrap everything in AuthProvider
+    <AuthProvider>
       {!isStandalone && <CinematicBg />}
-
-      {/* Global Navigation Bar — hidden on standalone pages */}
       {!isStandalone && <Navbar />}
 
-      {/* Route Switcher */}
       <Routes>
-        <Route path="/"                         element={<Home />} />
-        <Route path="/events"                   element={<Events />} />
-        <Route path="/team"                     element={<Team />} />
-        <Route path="/profile"                  element={<Profile />} />
-        <Route path="/admin"                    element={<AdminProfile />} />
-        <Route path="/admin/events"             element={<AdminEvents />} />
+        <Route path="/"                 element={<Home />} />
+        <Route path="/events"           element={<Events />} />
+        <Route path="/team"             element={<Team />} />
+        <Route path="/profile"          element={<Profile />} />
+        <Route path="/admin"            element={<AdminProfile />} />
+        <Route path="/admin/events"     element={<AdminEvents />} />
         <Route path="/admin/attendance/:eventId" element={<AttendanceHost />} />
         <Route path="/admin/attendance-list/:eventId" element={<AttendanceList />} />
-        <Route path="/attend/:token"            element={<AttendanceConfirm />} />
-        <Route path="/login"                    element={<Auth />} />
+        <Route path="/attend/:token"    element={<AttendanceConfirm />} />
+        <Route path="/login"            element={<Auth />} />
       </Routes>
-    </>
+    </AuthProvider>
   )
 }
 

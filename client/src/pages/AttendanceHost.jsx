@@ -50,7 +50,7 @@ export default function AttendanceHost() {
   const fetchToken = useCallback(async () => {
     if (!eventId) return
     try {
-      const res = await fetch(`/api/admin/events/${eventId}/qrtoken`)
+      const res = await fetch(`http://localhost:5000/api/admin/events/${eventId}/qrtoken`)
       if (!res.ok) {
         const d = await res.json()
         setError(d.error || 'Failed to generate QR token.')
@@ -226,7 +226,7 @@ export default function AttendanceHost() {
       <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center', maxWidth: 600 }}>
         {['Students point camera at QR code', 'Browser opens attendance confirm page', 'Attendance recorded automatically'].map((step, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '.7rem', color: '#666', fontSize: '.82rem' }}>
-            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,229,255,.1)', border: '1px solid rgba(0,229,255,.3)', color: '#00e5ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, flexShrink: 0 }}>{i + 1}</span>
+            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,229,255,.1)', border: '1px solid rgba(0,229,255,.3)', color: '#00e5ff', alignItems: 'center', fontSize: '.72rem', fontWeight: 700, flexShrink: 0 }}>{i + 1}</span>
             {step}
           </div>
         ))}

@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Typewriter from '../components/Typewriter'
+import { useAuth } from '../context/AuthContext';
 import gsap from 'gsap'
 
 function AdminProfile() {
-  const [admin, setAdmin] = useState(null)
-  const [loading, setLoading] = useState(true)
+
+  // 1. ALL Hooks go at the very top (including useEffects!)
+  const { user, loading, token } = useAuth(); 
+  const [activeTab, setActiveTab] = useState('overview');
   const [error, setError] = useState(null)
-
+  
   // Control Panel active operation selection
-  const [activeOperation, setActiveOperation] = useState('create-event') // 'create-event', 'hire', 'transfer', 'showcase'
-
+  const [activeOperation, setActiveOperation] = useState('create-event') 
+  
   // Input focus tracking states for glowing styles
   const [focusedInput, setFocusedInput] = useState(null)
-
+  
   // Hidden inputs references for file triggers
   const avatarInputRef = useRef(null)
-
-  // Form states (Recruit simplified; Shift Duty kept same; Showcase added)
+  
+  // Form states 
   const [eventForm, setEventForm] = useState({ 
     title: '', 
     type: 'Workshop', 
@@ -24,7 +27,7 @@ function AdminProfile() {
     time: '', 
     location: '', 
     jmxPoints: '50', 
-    coverImage: '', // Base64 data URL
+    coverImage: '', 
     description: '' 
   })
   const [hireForm, setHireForm] = useState({ username: '', role: 'Domain Specialist', domain: 'Web Dev', briefRole: '' })
@@ -34,10 +37,10 @@ function AdminProfile() {
     username: '',
     techStack: '',
     description: '',
-    coverImage: '', // Base64 data URL
+    coverImage: '', 
     github: ''
   })
-
+  
   // Mouse position ref for canvas liquid line calculations
   const containerRef = useRef(null)
   const lineCanvasRef = useRef(null)
@@ -53,29 +56,9 @@ function AdminProfile() {
     }
   }, [loading, error])
 
-  const fetchAdminProfile = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/admin/profile')
-      if (!response.ok) {
-        throw new Error('Failed to retrieve administrator profile.')
-      }
-      const data = await response.json()
-      setAdmin(data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchAdminProfile()
-  }, [])
-
   // Canvas guitar-string pluck & oscillation physics animation loop
   useEffect(() => {
-    if (loading || error || !admin) return
+    if (loading || error || !user) return
 
     const canvas = lineCanvasRef.current
     if (!canvas) return
@@ -84,7 +67,7 @@ function AdminProfile() {
 
     // Set layout resolution
     const w = canvas.width = 60
-    const parentHeight = canvas.parentElement.clientHeight
+    const parentHeight = canvas.parentElement?.clientHeight || 500
     const h = canvas.height = parentHeight - 120
     
     // Create node points along the vertical string line with velocity states
@@ -152,7 +135,108 @@ function AdminProfile() {
 
     animate()
     return () => cancelAnimationFrame(animId)
-  }, [loading, error, admin])
+  }, [loading, error, user])
+
+  
+  // Trigger entrance animations when content finishes loading
+  useEffect(() => {
+    if (!loading && !error) {
+      gsap.fromTo('.fade-in-up',
+        { opacity: 0, y: 25 },
+        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out', overwrite: 'auto' }
+      )
+    }
+  }, [loading, error])
+  
+  // Canvas guitar-string pluck & oscillation physics animation loop
+  useEffect(() => {
+    if (loading || error || !user) return
+
+    const canvas = lineCanvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animId
+    
+    // Set layout resolution
+    const w = canvas.width = 60
+    const parentHeight = canvas.parentElement.clientHeight
+    const h = canvas.height = parentHeight - 120
+    
+    // Create node points along the vertical string line with velocity states
+    const numPoints = 40
+    const points = []
+    for (let i = 0; i < numPoints; i++) {
+      points.push({
+        x: w / 2,
+        y: (i / (numPoints - 1)) * h,
+        vx: 0 // Velocity state for harmonic oscillation
+      })
+    }
+    
+    // --- 2. EARLY RETURNS GO HERE (Safely after all hooks!) ---
+    if (loading) {
+      return <div style={{ color: 'white', textAlign: 'center', marginTop: '5rem' }}>Loading Admin Hub...</div>;
+    }
+  
+    if (!user || user.role !== 'Manager') {
+      return <div style={{ color: 'red', textAlign: 'center', marginTop: '5rem' }}>Access Denied. Managers Only.</div>;
+    }
+
+    const springK = 0.035
+    const damping = 0.965
+
+    const animate = () => {
+      ctx.clearRect(0, 0, w, h)
+
+      // Sleek neon solid cyan stroke with high glow blur
+      ctx.beginPath()
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.95)'
+      ctx.lineWidth = 2.5
+      ctx.shadowBlur = 12
+      ctx.shadowColor = 'rgba(0, 240, 255, 0.85)'
+
+      points.forEach((p, idx) => {
+        const targetX = w / 2
+        
+        // Calculate mouse interaction
+        if (mousePosRef.current.x !== -1000) {
+          const mx = mousePosRef.current.x - 31
+          const my = mousePosRef.current.y - 72
+          
+          const dx = targetX - mx
+          const dy = p.y - my
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          
+          if (dist < 75) {
+            const force = (75 - dist) / 75
+            p.vx += (dx > 0 ? 1 : -1) * force * 1.8
+          }
+        }
+
+        const acceleration = (targetX - p.x) * springK
+        p.vx += acceleration
+        p.vx *= damping
+        p.x += p.vx
+
+        if (idx === 0) {
+          ctx.moveTo(p.x, p.y)
+        } else {
+          const prev = points[idx - 1]
+          const xc = (p.x + prev.x) / 2
+          const yc = (p.y + prev.y) / 2
+          ctx.quadraticCurveTo(prev.x, prev.y, xc, yc)
+        }
+      })
+      
+      ctx.stroke()
+      ctx.shadowBlur = 0
+      
+      animId = requestAnimationFrame(animate)
+    }
+
+    animate()
+    return () => cancelAnimationFrame(animId)
+  }, [loading, error, user])
 
   const handleMouseMove = (e) => {
     if (!containerRef.current) return
@@ -172,14 +256,15 @@ function AdminProfile() {
     if (!handle) return
 
     try {
-      const response = await fetch('/api/profile/bind', {
+      const response = await fetch('http://localhost:5000/api/profile/bind', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // <--- CRITICAL FOR AUTH
         body: JSON.stringify({ platform: platformName.toLowerCase(), handle })
       })
       if (response.ok) {
-        fetchAdminProfile()
         alert(`${platformName} account successfully linked!`)
+        window.location.reload() 
       } else {
         alert('Failed to bind account.')
       }
@@ -188,7 +273,8 @@ function AdminProfile() {
     }
   }
 
-  // Format Time representation from HTML5 Picker format "HH:MM" -> "H:MM AM/PM"
+  // (formatTime12h, formatDateLabel, and the cover upload functions stay exactly as they are)
+
   const formatTime12h = (timeStr) => {
     if (!timeStr) return ''
     const [hours, minutes] = timeStr.split(':')
@@ -198,14 +284,12 @@ function AdminProfile() {
     return `${formattedHours}:${minutes} ${ampm}`
   }
 
-  // Format Date representation from HTML5 picker format "YYYY-MM-DD" -> "MMM DD"
   const formatDateLabel = (dateStr) => {
     if (!dateStr) return 'TBD'
     const dateObj = new Date(dateStr)
     return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
   }
 
-  // Handle Event Local Cover Photo upload
   const handleEventCoverUpload = (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -216,7 +300,6 @@ function AdminProfile() {
     reader.readAsDataURL(file)
   }
 
-  // Handle Showcase Project Local Photo upload
   const handleShowcaseCoverUpload = (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -227,7 +310,6 @@ function AdminProfile() {
     reader.readAsDataURL(file)
   }
 
-  // Handle Changing Profile Avatar photo locally
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -235,15 +317,15 @@ function AdminProfile() {
     reader.onloadend = async () => {
       const base64Img = reader.result
       try {
-        const response = await fetch('/api/admin/profile/avatar', {
+        const response = await fetch('http://localhost:5000/api/admin/profile/avatar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ avatar: base64Img })
         })
         if (response.ok) {
-          const updated = await response.json()
-          setAdmin(updated)
           alert('Profile picture successfully updated!')
+          window.location.reload() 
         } else {
           alert('Failed to update avatar photo.')
         }
@@ -254,11 +336,12 @@ function AdminProfile() {
     reader.readAsDataURL(file)
   }
 
-  // Create Event Submit
   const handleCreateEvent = async (e) => {
     e.preventDefault()
-    if (!eventForm.title || !eventForm.description || !eventForm.date || !eventForm.time) {
-      alert('Please fill out the event title, description, date and time.')
+    
+    // 1. ADDED eventForm.location to the mandatory checks!
+    if (!eventForm.title || !eventForm.description || !eventForm.date || !eventForm.time || !eventForm.location) {
+      alert('Please fill out all fields, including the Location (Venue).')
       return
     }
 
@@ -267,41 +350,46 @@ function AdminProfile() {
     const combinedDateLabel = `${formattedDate} • ${formattedTime}`
 
     try {
-      const response = await fetch('/api/admin/events/create', {
+
+      const token = localStorage.getItem('token') || user?.token;
+
+      const response = await fetch('http://localhost:5000/api/events', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
         body: JSON.stringify({
           title: eventForm.title,
+          eventDate: eventForm.date,
+          venue: eventForm.location,
+          
           type: eventForm.type,
-          dateLabel: combinedDateLabel,
-          location: eventForm.location,
           jmxPoints: eventForm.jmxPoints,
           coverImage: eventForm.coverImage,
-          description: eventForm.description
+          description: eventForm.description,
+          dateLabel: combinedDateLabel 
         })
       })
       const result = await response.json()
-      if (response.ok && result.success) {
-        alert(`Successfully created new event: "${result.event.title}"!`)
+      
+      if (response.ok) {
+        alert(`Successfully created new event!`)
+        // Clear the form on success
         setEventForm({ 
-          title: '', 
-          type: 'Workshop', 
-          date: '', 
-          time: '', 
-          location: '', 
-          jmxPoints: '50', 
-          coverImage: '',
-          description: '' 
+          title: '', type: 'Workshop', date: '', time: '', location: '', jmxPoints: '50', coverImage: '', description: '' 
         })
       } else {
-        alert(result.error || 'Failed to create event.')
+        // Updated to read result.message since your backend uses "message" instead of "error"
+        alert(result.message || 'Failed to create event.')
       }
     } catch (err) {
       alert('Error connecting to events database.')
+      console.error(err);
     }
   }
 
-  // Hire Co-Member Submit
   const handleHireMember = async (e) => {
     e.preventDefault()
     if (!hireForm.username || !hireForm.briefRole) {
@@ -327,7 +415,6 @@ function AdminProfile() {
     }
   }
 
-  // Showcase Project Submit
   const handleCreateShowcase = async (e) => {
     e.preventDefault()
     if (!showcaseForm.title || !showcaseForm.username || !showcaseForm.description) {
@@ -336,9 +423,10 @@ function AdminProfile() {
     }
 
     try {
-      const response = await fetch('/api/admin/projects/create', {
+      const response = await fetch('http://localhost:5000/api/admin/projects/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(showcaseForm)
       })
       const result = await response.json()
@@ -353,7 +441,6 @@ function AdminProfile() {
     }
   }
 
-  // Transfer own job Submit
   const handleTransferJob = async (e) => {
     e.preventDefault()
     if (!transferForm.targetUsername) {
@@ -361,19 +448,20 @@ function AdminProfile() {
       return
     }
 
-    const confirmTransfer = window.confirm(`WARNING: This will permanently transfer your role "${admin.role}" to target username "${transferForm.targetUsername}". You will lose administrative access. Proceed?`)
+    const confirmTransfer = window.confirm(`WARNING: This will permanently transfer your role "${user.role}" to target username "${transferForm.targetUsername}". You will lose administrative access. Proceed?`)
     if (!confirmTransfer) return
 
     try {
-      const response = await fetch('/api/admin/jobs/transfer', {
+      const response = await fetch('http://localhost:5000/api/admin/jobs/transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(transferForm)
       })
       const result = await response.json()
       if (response.ok && result.success) {
         alert(result.message)
-        fetchAdminProfile()
+        window.location.reload()
         setTransferForm({ targetUsername: '', bio: '', github: '', linkedin: '' })
       } else {
         alert(result.error || 'Failed to transfer job.')
@@ -432,7 +520,6 @@ function AdminProfile() {
       overflow: 'hidden',
       background: '#020205'
     }}>
-      {/* Hidden file input for avatar uploading */}
       <input 
         type="file" 
         ref={avatarInputRef} 
@@ -450,10 +537,8 @@ function AdminProfile() {
         alignItems: 'stretch'
       }}>
         
-        {/* Left Column: Admin Profile Info & Accounts */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
-          {/* Header Card (Clickable Avatar to change profile photo) */}
           <div className="glass-panel" style={{ 
             padding: '1.5rem 2rem', 
             border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -480,8 +565,7 @@ function AdminProfile() {
               }}
               title="Click to change profile avatar"
             >
-              <img src={admin?.avatar || "https://i.pravatar.cc/300?img=12"} alt="Admin Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', background: '#05050a' }} />
-              {/* Overlay edit banner */}
+              <img src={user?.avatar_url || user?.profile?.avatar_url || "https://i.pravatar.cc/300?img=12"} alt="Admin Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', background: '#05050a' }} />
               <div style={{
                 position: 'absolute',
                 bottom: 0,
@@ -504,10 +588,10 @@ function AdminProfile() {
             </div>
             <div>
               <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 0.15rem 0', fontFamily: 'var(--font-title)', color: '#ffffff' }}>
-                {admin?.name}
+                {user?.full_name}
               </h1>
               <p style={{ color: 'var(--jmx-cyan)', fontSize: '0.95rem', margin: '0 0 0.75rem 0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05rem' }}>
-                {admin?.role}
+                {user?.role}
               </p>
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button 
@@ -542,7 +626,6 @@ function AdminProfile() {
             </div>
           </div>
 
-          {/* Connected Accounts Panel with Liquid interactive canvas */}
           <div 
             ref={containerRef}
             onMouseMove={handleMouseMove}
@@ -564,13 +647,12 @@ function AdminProfile() {
               Connected Platforms
             </h3>
 
-            {/* Interactive Liquid Connecting Path */}
             {!loading && !error && (
               <canvas 
                 ref={lineCanvasRef}
                 style={{
                   position: 'absolute',
-                  left: '31px', // Centered alignment overlaying with connection dot offsets
+                  left: '31px',
                   top: '68px',
                   width: '60px',
                   height: 'calc(100% - 110px)',
@@ -581,75 +663,67 @@ function AdminProfile() {
             )}
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', position: 'relative', zIndex: 2 }}>
-              {/* GitHub */}
+              
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
-                {renderConnectionDot(!!admin?.accounts?.github)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#181b20', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'center', flexShrink: 0, zIndex: 3 }}>GH</div>
+                {renderConnectionDot(!!(user?.profile?.github_handle || user?.accounts?.github))}
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#181b20', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'center', flexShrink: 0, zIndex: 3 }}>GH</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>GitHub</h4>
-                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{admin?.accounts?.github ? `@${admin.accounts.github}` : 'Not Connected'}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(user?.profile?.github_handle || user?.accounts?.github) ? `@${user?.profile?.github_handle || user?.accounts?.github}` : 'Not Connected'}</p>
                 </div>
-                {admin?.accounts?.github ? (
+                {(user?.profile?.github_handle || user?.accounts?.github) ? (
                   <span style={{ color: 'var(--jmx-emerald)', fontSize: '0.75rem', fontWeight: 700, zIndex: 3 }}>Active</span>
                 ) : (
                   <button onClick={() => handleBindAccount('GitHub')} className="btn-outline" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', borderRadius: '12px', zIndex: 3 }}>Bind</button>
                 )}
               </div>
 
-              {/* LinkedIn */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
-                {renderConnectionDot(!!admin?.accounts?.linkedin)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#0077b5', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>IN</div>
+                {renderConnectionDot(!!(user?.profile?.linkedin_handle || user?.accounts?.linkedin))}
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#0077b5', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>IN</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>LinkedIn</h4>
-                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{admin?.accounts?.linkedin ? `@${admin.accounts.linkedin}` : 'Not Connected'}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(user?.profile?.linkedin_handle || user?.accounts?.linkedin) ? `@${user?.profile?.linkedin_handle || user?.accounts?.linkedin}` : 'Not Connected'}</p>
                 </div>
-                {admin?.accounts?.linkedin ? (
+                {(user?.profile?.linkedin_handle || user?.accounts?.linkedin) ? (
                   <span style={{ color: 'var(--jmx-emerald)', fontSize: '0.75rem', fontWeight: 700, zIndex: 3 }}>Active</span>
                 ) : (
                   <button onClick={() => handleBindAccount('LinkedIn')} className="btn-outline" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', borderRadius: '12px', zIndex: 3 }}>Bind</button>
                 )}
               </div>
 
-              {/* LeetCode */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
-                {renderConnectionDot(!!admin?.accounts?.leetcode)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#f89f1b', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>LC</div>
+                {renderConnectionDot(!!(user?.profile?.leetcode_handle || user?.accounts?.leetcode))}
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#f89f1b', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>LC</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>LeetCode</h4>
-                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{admin?.accounts?.leetcode ? `@${admin.accounts.leetcode}` : 'Not Connected'}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(user?.profile?.leetcode_handle || user?.accounts?.leetcode) ? `@${user?.profile?.leetcode_handle || user?.accounts?.leetcode}` : 'Not Connected'}</p>
                 </div>
-                {admin?.accounts?.leetcode ? (
+                {(user?.profile?.leetcode_handle || user?.accounts?.leetcode) ? (
                   <span style={{ color: 'var(--jmx-emerald)', fontSize: '0.75rem', fontWeight: 700, zIndex: 3 }}>Active</span>
                 ) : (
                   <button onClick={() => handleBindAccount('LeetCode')} className="btn-outline" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', borderRadius: '12px', zIndex: 3 }}>Bind</button>
                 )}
               </div>
 
-              {/* Codeforces */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.03)', background: 'rgba(5, 5, 10, 0.6)' }}>
-                {renderConnectionDot(!!admin?.accounts?.codeforces)}
-                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#445f9d', display: 'flex', alignItems: 'center', justifycontent: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>CF</div>
+                {renderConnectionDot(!!(user?.profile?.codeforces_handle || user?.accounts?.codeforces))}
+                <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#445f9d', alignItems: 'center', fontWeight: 700, fontSize: '0.8rem', display: 'flex', justifyContent: 'center', flexShrink: 0, color: '#fff', zIndex: 3 }}>CF</div>
                 <div style={{ flexGrow: 1, minWidth: 0, zIndex: 3 }}>
                   <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>Codeforces</h4>
-                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{admin?.accounts?.codeforces ? `@${admin.accounts.codeforces}` : 'Not Connected'}</p>
+                  <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(user?.profile?.codeforces_handle || user?.accounts?.codeforces) ? `@${user?.profile?.codeforces_handle || user?.accounts?.codeforces}` : 'Not Connected'}</p>
                 </div>
-                {admin?.accounts?.codeforces ? (
+                {(user?.profile?.codeforces_handle || user?.accounts?.codeforces) ? (
                   <span style={{ color: 'var(--jmx-emerald)', fontSize: '0.75rem', fontWeight: 700, zIndex: 3 }}>Active</span>
                 ) : (
                   <button onClick={() => handleBindAccount('Codeforces')} className="btn-outline" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', borderRadius: '12px', zIndex: 3 }}>Bind</button>
                 )}
               </div>
             </div>
-
           </div>
-
         </div>
 
-        {/* Right Column: Unified Command Cockpit Control Panel */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', minHeight: 0 }}>
-          
-          {/* Operations Console Cockpit */}
           <div className="glass-panel" style={{ 
             padding: '1.75rem 2rem', 
             border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -661,7 +735,6 @@ function AdminProfile() {
             gap: '1.75rem',
             minHeight: 0
           }}>
-            {/* Left Console Keypad */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRight: '1px solid rgba(255,255,255,0.05)', paddingRight: '0.75rem' }}>
               <h5 style={{ color: '#666', margin: '0 0 0.5rem 0', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1rem', fontWeight: 700 }}>Console Keys</h5>
               
@@ -742,10 +815,8 @@ function AdminProfile() {
               </button>
             </div>
 
-            {/* Right Execution Workspace Form */}
             <div style={{ overflowY: 'auto', maxHeight: '310px', paddingRight: '0.5rem', scrollbarWidth: 'thin' }}>
               
-              {/* OPERATION: Event Launch */}
               {activeOperation === 'create-event' && (
                 <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '0.75rem' }}>
@@ -864,7 +935,6 @@ function AdminProfile() {
                 </form>
               )}
 
-              {/* OPERATION: Recruit Member (Domain drop-down selection and simplified fields) */}
               {activeOperation === 'hire' && (
                 <form onSubmit={handleHireMember} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -946,7 +1016,6 @@ function AdminProfile() {
                 </form>
               )}
 
-              {/* OPERATION: Showcase Project (Gold/Yellow Accent) */}
               {activeOperation === 'showcase' && (
                 <form onSubmit={handleCreateShowcase} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '0.75rem' }}>
@@ -1003,7 +1072,6 @@ function AdminProfile() {
                     </div>
                   </div>
 
-                  {/* Local Photo Upload Picker (Base64 conversion) for Projects */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                     <label style={{ fontSize: '0.75rem', color: 'var(--jmx-yellow)', fontWeight: 600 }}>Project Cover Background Photo</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -1056,11 +1124,10 @@ function AdminProfile() {
                 </form>
               )}
 
-              {/* OPERATION: Shift Duty (Target Username, Bio, GitHub, LinkedIn - Red Themed) */}
               {activeOperation === 'transfer' && (
                 <form onSubmit={handleTransferJob} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <p style={{ color: '#aaa', fontSize: '0.75rem', margin: 0, lineHeight: 1.4 }}>
-                    Provide credentials of the target student to shift your duties. This will transfer your role of <strong>{admin?.role}</strong> directly to them.
+                    Provide credentials of the target student to shift your duties. This will transfer your role of <strong>{user?.role}</strong> directly to them.
                   </p>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>

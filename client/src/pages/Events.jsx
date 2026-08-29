@@ -154,9 +154,9 @@ function Events() {
   }
 
   // Filter events by status
-  const liveEvents = events.filter(e => e.status === 'live')
-  const upcomingEvents = events.filter(e => e.status === 'upcoming')
-  const pastEvents = events.filter(e => e.status === 'past')
+  const liveEvents = (Array.isArray(events) ? events : []).filter(e => e.status === 'live')
+  const upcomingEvents = (Array.isArray(events) ? events : []).filter(e => e.status === 'upcoming')
+  const pastEvents = (Array.isArray(events) ? events : []).filter(e => e.status === 'past')
 
   return (
     <main className="container" style={{ paddingTop: '8rem', paddingBottom: '4rem', minHeight: '100vh' }}>

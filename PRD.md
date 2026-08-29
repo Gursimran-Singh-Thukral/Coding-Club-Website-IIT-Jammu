@@ -20,7 +20,7 @@ The platform is divided into a public-facing global view and a secure internal p
 
 * **Field Specialist (Domain Lead)**: Manages specific technical branches (CP, AI, Web Dev, Cybersecurity, Game Dev). Has the authority to review, approve, or reject independent project submissions within their respective domain.
 
-* **Co-Manager/Technical Secretary**: Possesses administrative privileges to create and manage events, assign platform roles, trigger the dynamic attendance systems, and oversee the global state of the platform.
+* **Coordinator/Technical Secretary**: Possesses administrative privileges to create and manage events, assign platform roles, trigger the dynamic attendance systems, and oversee the global state of the platform.
 
 ## Core Features & Workflows
 

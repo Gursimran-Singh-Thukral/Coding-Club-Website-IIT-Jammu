@@ -8,6 +8,66 @@
 const supabase = require('../config/supabaseClient');
 const { fetchStats } = require('../services/statFetcher');
 
+// Fetch the Currently Authenticated User's Data
+
+const getUserProfile = async(req, res) => {
+
+    try{
+
+        const userId = req.user.id;
+
+        const { data: user, error } = await supabase
+
+            .from('users')
+            .select(`
+                
+                id, 
+                full_name, 
+                email,
+                student_id,
+                role, 
+                created_at,
+                profiles(*)
+
+            `)
+            .eq('id', userId)
+            .single();
+
+        if(error || !user){
+
+            return res.status(404).json({
+
+                status: 'Error',
+                message: 'User Not Found'
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            user: user
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[Profile Fetch Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error', 
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
 // Create or Update the Authenticated User's Profile
 
 const upsertProfile = async (req, res) => {
@@ -82,6 +142,7 @@ const upsertProfile = async (req, res) => {
 };
 
 // Fetch All Profiles
+// Public, Unauthenticated Endpoint - Deliberately Excludes Email (PII) from the Response
 
 const getAllProfiles = async (req, res) => {
 
@@ -91,9 +152,9 @@ const getAllProfiles = async (req, res) => {
 
             .from('profiles')
             .select(`
-                
+
                 *,
-                users (student_id, role, email)
+                users (student_id, role)
 
             `);
 
@@ -135,4 +196,4 @@ const getAllProfiles = async (req, res) => {
 
 };
 
-module.exports = { upsertProfile, getAllProfiles };
+module.exports = { upsertProfile, getAllProfiles, getUserProfile };
