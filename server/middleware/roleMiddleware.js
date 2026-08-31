@@ -8,7 +8,24 @@
 
 const supabase = require('../config/supabaseClient');
 
-const requireManager = async (req, res, next) => {
+// Admin-Tier Roles (Coordinator or Technical Secretary, per PRD's "Coordinator" Role) - Exported
+// so Other Controllers can Grant the Same People Extra Leeway (e.g. Skipping the
+// Attendance-Gate on the Hackathon Workspace) without Duplicating this List.
+
+const ADMIN_ROLES = ['Coordinator', 'Technical Secretary'];
+
+// Fresh DB Lookup (not the Possibly-Stale Role Embedded in the JWT) - so a Just-Assigned
+// or Just-Revoked Role Takes Effect Immediately, not after the Next Silent Token Refresh.
+
+const isCoordinatorRole = async (userId) => {
+
+    const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
+
+    return !!user && ADMIN_ROLES.includes(user.role);
+
+};
+
+const requireCoordinator = async (req, res, next) => {
 
     try{
 
@@ -36,14 +53,14 @@ const requireManager = async (req, res, next) => {
 
         }
 
-        // Check if User is a Manager
+        // Check if User Holds Admin-Tier Privileges
 
-        if(user.role != 'Manager'){
+        if(!ADMIN_ROLES.includes(user.role)){
 
             return res.status(403).json({
 
                 status: 'Error',
-                message: 'Forbidden: Only Club Managers can Perform This Action.'
+                message: 'Forbidden: Only Club Coordinators can Perform This Action.'
 
             });
 
@@ -68,4 +85,4 @@ const requireManager = async (req, res, next) => {
 
 };
 
-module.exports = { requireManager };
+module.exports = { requireCoordinator, isCoordinatorRole, ADMIN_ROLES };

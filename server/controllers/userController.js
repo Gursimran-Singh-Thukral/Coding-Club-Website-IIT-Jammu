@@ -104,4 +104,136 @@ const syncUserProfile = async(req, res) => {
 
 }
 
-module.exports = { syncUserProfile };
+// Roles a Coordinator is Allowed to Assign - Mirrors the student_role Enum
+
+const ASSIGNABLE_ROLES = ['Student', 'Field Specialist', 'Coordinator', 'Technical Secretary'];
+
+// List Every Registered User - Coordinator-Only, Backs the Role Management Page
+
+const listUsers = async (req, res) => {
+
+    try{
+
+        const { data: users, error } = await supabase
+
+            .from('users')
+            .select('id, full_name, email, student_id, role, created_at')
+            .order('full_name', { ascending: true });
+
+        if(error){
+
+            console.error('[DB Users Fetch Error]: ', error);
+
+            return res.status(500).json({
+
+                status: 'Error',
+                message: 'Failed to Fetch Users'
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            data: users
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[User Controller Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error',
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+// Promote/Demote a User's Platform Role - Coordinator-Only
+
+const updateUserRole = async (req, res) => {
+
+    try{
+
+        const targetId = req.params.id;
+        const { role } = req.body;
+
+        if(!ASSIGNABLE_ROLES.includes(role)){
+
+            return res.status(400).json({
+
+                status: 'Error',
+                message: `Role must be one of: ${ASSIGNABLE_ROLES.join(', ')}`
+
+            });
+
+        }
+
+        // Guard against Locking Yourself Out (or Escalating Yourself) via this Endpoint
+
+        if(targetId === req.user.id){
+
+            return res.status(400).json({
+
+                status: 'Error',
+                message: 'You Cannot Change Your Own Role'
+
+            });
+
+        }
+
+        const { data: updatedUser, error } = await supabase
+
+            .from('users')
+            .update({ role })
+            .eq('id', targetId)
+            .select('id, full_name, email, student_id, role, created_at')
+            .single();
+
+        if(error){
+
+            console.error('[DB Role Update Error]: ', error);
+
+            return res.status(500).json({
+
+                status: 'Error',
+                message: 'Failed to Update Role'
+
+            });
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            message: 'Role Updated Successfully',
+            data: updatedUser
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[User Controller Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error',
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+module.exports = { syncUserProfile, listUsers, updateUserRole };

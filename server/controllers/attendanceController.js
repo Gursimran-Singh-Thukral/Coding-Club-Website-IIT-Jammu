@@ -199,4 +199,46 @@ const getEventAttendance = async (req, res) => {
 
 }
 
-module.exports = { markAttendance, getEventAttendance };
+// Has the Caller Themselves Already Checked In to this Event?
+// Backs the Workspace-Unlock Gate - Anyone Logged In can Ask about Themselves.
+
+const getMyAttendance = async (req, res) => {
+
+    try{
+
+        const eventId = req.params.eventId;
+        const studentId = req.user.id;
+
+        const { data: record } = await supabase
+
+            .from('attendance')
+            .select('marked_at')
+            .eq('event_id', eventId)
+            .eq('student_id', studentId)
+            .maybeSingle();
+
+        return res.status(200).json({
+
+            status: 'Success',
+            data: { marked: !!record, marked_at: record?.marked_at || null }
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[Attendance Controller Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error',
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+module.exports = { markAttendance, getEventAttendance, getMyAttendance };
