@@ -148,12 +148,23 @@ function InteractiveGridMesh() {
 }
 
 function Team() {
-  const [teamMembers, setTeamMembers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [teamMembers, setTeamMembers] = useState([
+    { id: 2, name: "Aarav Sharma", role: "Technical Secretary", category: "coordinator", bio: "Overseeing all branch events.", avatar: "https://i.pravatar.cc/300?img=11", github: "#", linkedin: "#" },
+    { id: 3, name: "Priya Singh", role: "Club Co-Manager", category: "coordinator", bio: "Managing operational logistics.", avatar: "https://i.pravatar.cc/300?img=5", github: "#", linkedin: "#" },
+    { id: 4, name: "Rohan Gupta", role: "Competitive Programming Lead", category: "lead", bio: "Candidate Master on Codeforces.", avatar: "https://i.pravatar.cc/300?img=12", github: "#", linkedin: "#" },
+    { id: 5, name: "Sneha Reddy", role: "Artificial Intelligence Lead", category: "lead", bio: "Machine Learning practitioner.", avatar: "https://i.pravatar.cc/300?img=47", github: "#", linkedin: "#" },
+    { id: 6, name: "Kabir Malhotra", role: "Cybersecurity Lead", category: "lead", bio: "CTF player and penetration tester.", avatar: "https://i.pravatar.cc/300?img=18", github: "#", linkedin: "#" },
+    { id: 7, name: "Isha Patel", role: "Domain Specialist (Web Dev)", category: "specialist", bio: "Fullstack React & Node engineer.", avatar: "https://i.pravatar.cc/300?img=32", github: "#", linkedin: "#" },
+    { id: 8, name: "Nikhil Verma", role: "Domain Specialist (AI/ML)", category: "specialist", bio: "Computer Vision and NLP enthusiast.", avatar: "https://i.pravatar.cc/300?img=15", github: "#", linkedin: "#" },
+    { id: 9, name: "Karan Johar", role: "Domain Specialist (CP)", category: "specialist", bio: "Expert at trees and dynamic programming algorithms.", avatar: "https://i.pravatar.cc/300?img=8", github: "#", linkedin: "#" },
+    { id: 10, name: "Simran Kaur", role: "Domain Specialist (Cyber sec)", category: "specialist", bio: "Penetration tester and network defense enthusiast.", avatar: "https://i.pravatar.cc/300?img=23", github: "#", linkedin: "#" },
+    { id: 11, name: "Aditya Roy", role: "Domain Specialist (Game Dev)", category: "specialist", bio: "3D physics engine and Unity gameplay logic designer.", avatar: "https://i.pravatar.cc/300?img=60", github: "#", linkedin: "#" }
+  ])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selectedDomain, setSelectedDomain] = useState('All')
 
-  const filterDomains = ['All', 'Web Dev', 'AI/ML', 'CP', 'Cyber sec', 'Game Dev']
+  const filterDomains = ['CO-Managers','Domain Heads']
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -163,8 +174,17 @@ function Team() {
         if (!response.ok) {
           throw new Error('Failed to fetch team details.')
         }
+        // const data = await response.json()
+        // setTeamMembers(data)
+
         const data = await response.json()
-        setTeamMembers(data)
+const updatedData = data.map(member => ({
+  ...member,
+  role: 'Frontend',
+  category: 'specialist'
+}))
+setTeamMembers(updatedData)
+
       } catch (err) {
         setError(err.message)
       } finally {
@@ -301,7 +321,7 @@ function Team() {
               position: 'absolute',
               bottom: 0,
               right: 0,
-              width: '65vw',
+              width: '100%',
               height: '75vh',
               backdropFilter: 'blur(35px) brightness(0.65)',
               WebkitBackdropFilter: 'blur(35px) brightness(0.65)',
@@ -425,14 +445,14 @@ function Team() {
           >
             <div>
               <h1 className="section-title" style={{ textAlign: 'left', marginBottom: '0.5rem', marginTop: 0 }}>
-                Domain <span className="text-gradient">Specialists</span>
+                Core <span className="text-gradient">Members</span>
               </h1>
               <p style={{ color: '#a0a0a0', marginBottom: '2.5rem', fontSize: '1rem', textAlign: 'left' }}>
                 Technical domain advisors and field specialists.
               </p>
 
               {/* 6 Filter Buttons — styled as JSX self-closing tags with animations */}
-              <div className="top-nav-buttons" style={{ display: 'flex', gap: '.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              <div className="top-nav-buttons" style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap',justifyContent: 'center'}}>
                 {filterDomains.map((dom) => {
                   const isActive = selectedDomain === dom
                   const activeColor = '#00e5ff'
@@ -443,9 +463,9 @@ function Team() {
                       onClick={() => setSelectedDomain(dom)}
                       style={{
                         fontFamily: "'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-                        fontSize: '.88rem',
+                        fontSize: '1.1rem',
                         letterSpacing: '-.01em',
-                        padding: '.5rem 1.15rem',
+                        padding: '.9rem 2rem',
                         background: isActive ? `${activeColor}12` : 'rgba(255, 255, 255, .025)',
                         border: `1px solid ${isActive ? activeColor + '45' : 'rgba(255,255,255,.07)'}`,
                         borderRadius: 10,
@@ -502,7 +522,7 @@ function Team() {
                       }}
                     >
                       <div className="team-avatar" style={{ width: '120px', height: '120px', borderRadius: '50%', marginBottom: '1.5rem', border: '2px solid rgba(0, 229, 255, 0.15)', padding: '4px' }}>
-                        <img src={member.avatar || "https://i.pravatar.cc/300?img=12"} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                        <img src={member.avatar || "https://i.pravatar.cc/300?img=12"} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', filter: 'grayscale(100%)' }} />
                       </div>
                       <div className="team-role" style={{ fontSize: '0.88rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--jmx-cyan)', marginBottom: '0.5rem' }}>
                         {domainName}
