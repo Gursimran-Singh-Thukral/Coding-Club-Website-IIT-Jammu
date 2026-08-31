@@ -8,10 +8,6 @@
 
 const express = require('express');
 const { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret } =  require('../controllers/eventController');
-<<<<<<< Updated upstream
-const { verifyAuth } = require('../middleware/authMiddleware');
-const { requireManager } = require('../middleware/roleMiddleware');
-=======
 const {
     createTeam, joinTeam, getMyTeam, leaveTeam, listRegistrations, removeTeam
 } = require('../controllers/registrationController');
@@ -20,28 +16,12 @@ const {
 } = require('../controllers/submissionController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { requireCoordinator } = require('../middleware/roleMiddleware');
->>>>>>> Stashed changes
 
 const router = express.Router();
 
 // Router: GET /api/events
 
 router.get('/', getEvents);
-<<<<<<< Updated upstream
-router.get('/:id/secret', verifyAuth, requireManager, getEventSecret);
-
-// Router: POST /api/events (Protected - Only Logged-in Users can create)
-
-router.post('/', verifyAuth, requireManager, createEvent);
-
-// Router: PUT /api/events (Protected - Only Logged-in Users can update)
-
-router.put('/:id', verifyAuth, requireManager, updateEvent);
-
-// Router: DELETE /api/events (Protected - Only Logged-in Users can delete)
-
-router.delete('/:id', verifyAuth, requireManager, deleteEvent);
-=======
 router.get('/:id/secret', verifyToken, requireCoordinator, getEventSecret);
 
 // Router: POST /api/events (Protected - Only Logged-in Users can create)
@@ -55,7 +35,6 @@ router.put('/:id', verifyToken, requireCoordinator, updateEvent);
 // Router: DELETE /api/events (Protected - Only Logged-in Users can delete)
 
 router.delete('/:id', verifyToken, requireCoordinator, deleteEvent);
->>>>>>> Stashed changes
 
 // Router: Registration (Individual or Team Sign-up)
 

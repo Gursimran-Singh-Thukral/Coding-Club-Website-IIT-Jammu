@@ -9,11 +9,10 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
-<<<<<<< Updated upstream
-=======
 // Behind a VM's reverse proxy, req.ip otherwise reports the proxy's address.
 // Off by default so an untrusted X-Forwarded-For can't spoof it in local dev.
 
@@ -52,26 +51,16 @@ app.use(cors({
 app.use(express.json({ limit: '3mb' }));
 app.use(cookieParser());
 
->>>>>>> Stashed changes
 const supabase = require('./config/supabaseClient');
 
-const { verifyAuth } = require('./middleware/authMiddleware');
+const { verifyToken } = require('./middleware/authMiddleware');
 
-const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const profileRoutes = require('./routes/profileRoutes');
-<<<<<<< Updated upstream
-
-// Middleware
-
-app.use(cors());            // Allows Frontend to Connect with Backend
-app.use(express.json());    // Allows Express to Parse JSON Bodies in Requests
-=======
 const authRoutes = require('./routes/authRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const userRoutes = require('./routes/userRoutes');
->>>>>>> Stashed changes
 
 // Base Routes
 
@@ -100,7 +89,7 @@ app.get('/health', (req, res) => {
 
 */
 
-app.get('/test-auth', verifyAuth, (req, res) => {
+app.get('/test-auth', verifyToken, (req, res) => {
 
     res.status(200).json({
 
@@ -113,12 +102,8 @@ app.get('/test-auth', verifyAuth, (req, res) => {
 
 });
 
-app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/attendance', attendanceRoutes);
-<<<<<<< Updated upstream
-app.use('/api/profiles', profileRoutes);
-=======
 app.use('/api/profile', profileRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/team', teamRoutes);
@@ -157,7 +142,6 @@ app.get('/api/projects', (req, res) => {
     ]
   });
 });
->>>>>>> Stashed changes
 
 // Server Initialization
 
