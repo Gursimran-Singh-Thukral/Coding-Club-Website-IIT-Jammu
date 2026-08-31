@@ -67,7 +67,7 @@ export function SiteHeader() {
           {loading ? null : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-md border border-line py-1 pr-3 pl-1 hover:bg-accent">
-                <Avatar className="h-7 w-7">
+                <Avatar size="sm">
                   <AvatarImage src={avatarUrl ?? undefined} alt={user.full_name} />
                   <AvatarFallback className="text-[11px]">{initials(user.full_name)}</AvatarFallback>
                 </Avatar>

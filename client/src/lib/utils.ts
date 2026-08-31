@@ -21,8 +21,20 @@ export function formatEventTime(iso: string) {
   })
 }
 
-export function isUpcoming(iso: string) {
-  return new Date(iso).getTime() >= Date.now()
+export function getEventStatus(event: { event_date: string; event_end: string | null }): "past" | "live" | "upcoming" {
+  const now = Date.now()
+  const start = new Date(event.event_date).getTime()
+  // Events without an end time (legacy rows) are treated as instantaneous.
+  const end = event.event_end ? new Date(event.event_end).getTime() : start
+
+  if (now < start) return "upcoming"
+  if (now > end) return "past"
+  return "live"
+}
+
+export function formatEventTimeRange(event: { event_date: string; event_end: string | null }) {
+  if (!event.event_end) return formatEventTime(event.event_date)
+  return `${formatEventTime(event.event_date)} – ${formatEventTime(event.event_end)}`
 }
 
 export function initials(name: string) {

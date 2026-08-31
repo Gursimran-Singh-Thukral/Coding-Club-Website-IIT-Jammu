@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IITJ Token Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: system-ui; padding: 2rem; background: #121212; color: #fff; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        pre { background: #222; padding: 15px; overflow-x: auto; border-radius: 5px; color: #0f0; white-space: pre-wrap; word-wrap: break-word;}
+    </style>
+</head>
+<body>
+
+    <h2>Token Generator</h2>
+    <p>Clicking this will create a dummy user and fetch a real JWT token.</p>
+    <button onclick="generateToken()">Get Token</button>
+    
+    <h3>Your JWT (Bearer Token):</h3>
+    <pre id="tokenDisplay">Waiting...</pre>
+
+    <script>
+        // FIX 1: Renamed variable to 'supabaseClient' to avoid global collision
+        const supabaseUrl = 'https://bfuzayaluseffpyclhbk.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmdXpheWFsdXNlZmZweWNsaGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMDIzNDUsImV4cCI6MjA5OTg3ODM0NX0.a1tV6FDbVW02zJqvn42MywyNxV7scFkXZcaCpmGHonA';
+        
+        // FIX 2: Configured client to not use localStorage to avoid the file:// browser block
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+            auth: {
+                persistSession: false 
+            }
+        });
+
+        async function generateToken() {
+            const email = "student2@iitjammu.ac.in";
+            const password = "securepassword123";
+            const display = document.getElementById('tokenDisplay');
+            
+            display.innerText = "Processing...";
+
+            try {
+                // Try to log in
+                let { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+                // If user doesn't exist, sign them up
+                if (error) {
+                    console.log("Login failed, attempting sign up...");
+                    const signUpResponse = await supabaseClient.auth.signUp({ email, password });
+                    data = signUpResponse.data;
+                    error = signUpResponse.error;
+                }
+
+                if (error) {
+                    display.innerText = "Supabase Error: " + error.message;
+                    display.style.color = "red";
+                } else if (!data.session) {
+                    // THE SAFETY NET
+                    display.innerText = "Blocked: Supabase created the account but withheld the token. \n\nFix: Go to Supabase -> Authentication -> Providers -> Email, ensure 'Confirm email' is OFF, then change the email in this script to something brand new.";
+                    display.style.color = "orange";
+                } else {
+                    const token = data.session.access_token;
+                    display.innerText = token;
+                    display.style.color = "#0f0";
+                }
+            } catch (err) {
+                display.innerText = "Critical Error: " + err.message;
+                display.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>

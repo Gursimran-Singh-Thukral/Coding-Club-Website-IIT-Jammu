@@ -20,6 +20,13 @@ if(process.env.TRUST_PROXY === 'true'){
 
   app.set('trust proxy', 1);
 
+} else if(process.env.NODE_ENV === 'production'){
+
+  // Left unset in production, every request behind Railway's (or any) reverse
+  // proxy resolves to the same req.ip, so the auth rate limiter treats every
+  // visitor as one client - see authRoutes.js and .env.example.
+  console.warn('[Server] WARNING: TRUST_PROXY is not "true" in production. req.ip will be wrong behind a reverse proxy, and the auth rate limiter will misfire for all clients sharing it.');
+
 }
 
 // Comma-Separated so a VM's Domain can be Added Alongside Localhost via .env Alone
@@ -38,7 +45,10 @@ app.use(cors({
    // Allows Frontend to Connect with Backend
 // Middleware
 
-app.use(express.json());    // Allows Express to Parse JSON Bodies in Requests
+// Raised from the 100kb default - team member photos are uploaded as base64
+// data URIs in the JSON body (client-side compressed, but base64 still
+// inflates size ~33% over the raw file).
+app.use(express.json({ limit: '3mb' }));
 app.use(cookieParser());
 
 const supabase = require('./config/supabaseClient');
@@ -50,6 +60,7 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const authRoutes = require('./routes/authRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Base Routes
 
@@ -96,6 +107,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/team', teamRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/api/about', (req, res) => {
   res.status(200).json({

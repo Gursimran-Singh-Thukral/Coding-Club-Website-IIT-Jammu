@@ -7,7 +7,7 @@ import type { Role, SessionUser } from "@/lib/types";
 interface AuthContextValue {
   user: SessionUser | null;
   loading: boolean;
-  isManager: boolean;
+  isCoordinator: boolean;
   refresh: () => Promise<void>;
   setUser: (user: SessionUser | null) => void;
   logout: () => Promise<void>;
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       loading,
-      isManager: user?.role === "Manager",
+      isCoordinator: user?.role === "Coordinator" || user?.role === "Technical Secretary",
       refresh,
       setUser,
       logout,

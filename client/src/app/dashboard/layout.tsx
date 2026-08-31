@@ -4,13 +4,13 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, LayoutDashboard, UserRound, CalendarCog, Users } from "lucide-react";
+import { LogOut, LayoutDashboard, UserRound, CalendarCog, Users, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, isManager, logout } = useAuth();
+  const { user, loading, isCoordinator, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -30,10 +30,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const links = [
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/profile", label: "My Profile", icon: UserRound },
-    ...(isManager
+    ...(isCoordinator
       ? [
           { href: "/events", label: "Manage Events", icon: CalendarCog },
           { href: "/dashboard/team", label: "Manage Team", icon: Users },
+          { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck },
         ]
       : []),
   ];

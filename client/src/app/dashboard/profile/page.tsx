@@ -23,7 +23,7 @@ export default function DashboardProfilePage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-            <Avatar size="lg" className="size-20">
+            <Avatar size="2xl">
               <AvatarImage src={profile?.avatar_url ?? undefined} alt={user.full_name} />
               <AvatarFallback className="text-lg">{initials(user.full_name)}</AvatarFallback>
             </Avatar>

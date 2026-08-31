@@ -1,6 +1,6 @@
 "use client";
 
-import { RequireManager } from "@/components/require-manager";
+import { RequireCoordinator } from "@/components/require-coordinator";
 import { EventForm } from "@/components/events/event-form";
 
 export default function NewEventPage() {
@@ -9,9 +9,9 @@ export default function NewEventPage() {
       <p className="font-mono text-xs tracking-[0.2em] text-accent uppercase">{"// event management"}</p>
       <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight">New event</h1>
       <div className="mt-8">
-        <RequireManager>
+        <RequireCoordinator>
           <EventForm />
-        </RequireManager>
+        </RequireCoordinator>
       </div>
     </div>
   );

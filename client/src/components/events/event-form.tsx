@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { CalendarClock, Clock, MapPin } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,14 +22,38 @@ const schema = z.object({
   venue: z.string().min(2, "Venue is required"),
   category: z.enum(["Workshop", "Seminar", "Hackathon", "Talk"]),
   event_date: z.string().min(1, "Date & time is required"),
+  end_time: z.string().optional(),
+  registration_open: z.boolean(),
+  registration_mode: z.enum(["individual", "team"]),
+  max_team_size: z.coerce.number().int().min(1).max(20),
+  workspace_enabled: z.boolean(),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 function toLocalInputValue(iso: string) {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function toLocalTimeValue(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Combines the start date with an end-of-day time-of-day into a full
+// timestamp, rolling to the next day if the end time is earlier than the
+// start time (overnight events).
+function combineEndDateTime(startIso: string, endTime: string) {
+  const start = new Date(startIso);
+  const [hours, minutes] = endTime.split(":").map(Number);
+  const end = new Date(start);
+  end.setHours(hours, minutes, 0, 0);
+  if (end.getTime() <= start.getTime()) end.setDate(end.getDate() + 1);
+  return end.toISOString();
 }
 
 export function EventForm({ event }: { event?: ClubEvent }) {
@@ -39,7 +64,7 @@ export function EventForm({ event }: { event?: ClubEvent }) {
     formState: { errors, isSubmitting },
     setValue,
     watch,
-  } = useForm<FormValues>({
+  } = useForm<FormInput, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: event
       ? {
@@ -48,12 +73,25 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           venue: event.venue,
           category: event.category,
           event_date: toLocalInputValue(event.event_date),
+          end_time: event.event_end ? toLocalTimeValue(event.event_end) : "",
+          registration_open: event.registration_open,
+          registration_mode: event.registration_mode,
+          max_team_size: event.max_team_size,
+          workspace_enabled: event.workspace_enabled,
         }
-      : { category: "Workshop" },
+      : { category: "Workshop", registration_open: false, registration_mode: "individual", max_team_size: 4, workspace_enabled: false },
   });
 
-  async function onSubmit(values: FormValues) {
-    const payload = { ...values, event_date: new Date(values.event_date).toISOString() };
+  const registrationOpen = watch("registration_open");
+  const registrationMode = watch("registration_mode");
+
+  async function onSubmit(values: FormOutput) {
+    const { end_time, ...rest } = values;
+    const payload = {
+      ...rest,
+      event_date: new Date(values.event_date).toISOString(),
+      event_end: end_time ? combineEndDateTime(values.event_date, end_time) : null,
+    };
     try {
       if (event) {
         await api.put(`/api/events/${event.id}`, payload);
@@ -83,14 +121,31 @@ export function EventForm({ event }: { event?: ClubEvent }) {
         <Textarea id="description" {...register("description")} className="mt-1" rows={4} />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-3">
         <div>
-          <Label htmlFor="event_date">Date &amp; time</Label>
-          <Input id="event_date" type="datetime-local" {...register("event_date")} className="mt-1" />
+          <Label htmlFor="event_date" className="flex items-center gap-1.5">
+            <CalendarClock className="h-3.5 w-3.5 text-primary" /> Start date &amp; time
+          </Label>
+          <div className="date-time-field mt-1">
+            <Input id="event_date" type="datetime-local" {...register("event_date")} className="pr-9" />
+            <CalendarClock className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-primary" />
+          </div>
           {errors.event_date && <p className="mt-1 text-xs text-destructive">{errors.event_date.message}</p>}
         </div>
         <div>
-          <Label htmlFor="venue">Venue</Label>
+          <Label htmlFor="end_time" className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-primary" /> End time
+          </Label>
+          <div className="date-time-field mt-1">
+            <Input id="end_time" type="time" {...register("end_time")} className="pr-9" />
+            <Clock className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-primary" />
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Optional - lets the site show Live/Past correctly.</p>
+        </div>
+        <div>
+          <Label htmlFor="venue" className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 text-primary" /> Venue
+          </Label>
           <Input id="venue" {...register("venue")} className="mt-1" />
           {errors.venue && <p className="mt-1 text-xs text-destructive">{errors.venue.message}</p>}
         </div>
@@ -110,6 +165,43 @@ export function EventForm({ event }: { event?: ClubEvent }) {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="rounded-md border border-border p-4">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" className="accent-primary" {...register("registration_open")} />
+          Open registration for this event
+        </label>
+
+        {registrationOpen && (
+          <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
+            <div>
+              <Label>Registration type</Label>
+              <div className="mt-1.5 flex gap-4 text-sm">
+                <label className="flex items-center gap-1.5">
+                  <input type="radio" value="individual" className="accent-primary" {...register("registration_mode")} />
+                  Individual
+                </label>
+                <label className="flex items-center gap-1.5">
+                  <input type="radio" value="team" className="accent-primary" {...register("registration_mode")} />
+                  Team-based (invite code to join)
+                </label>
+              </div>
+            </div>
+
+            {registrationMode === "team" && (
+              <div className="max-w-40">
+                <Label htmlFor="max_team_size">Max team size</Label>
+                <Input id="max_team_size" type="number" min={1} max={20} {...register("max_team_size")} className="mt-1" />
+              </div>
+            )}
+
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input type="checkbox" className="accent-primary" {...register("workspace_enabled")} />
+              Enable in-browser HTML/CSS/JS workspace for participants
+            </label>
+          </div>
+        )}
       </div>
 
       <Button type="submit" disabled={isSubmitting} className="mt-2 self-start">

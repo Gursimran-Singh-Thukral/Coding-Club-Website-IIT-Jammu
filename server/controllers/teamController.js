@@ -1,15 +1,15 @@
 /**
 
     @fileoverview Team Controller.
-    Handles the Public Team Roster - Manageable by Club Managers.
+    Handles the Public Team Roster - Manageable by Club Coordinators.
 
 */
 
 const supabase = require('../config/supabaseClient');
 
-// Fields a Manager is Allowed to Set/Change - Never created_by, id, etc.
+// Fields a Coordinator is Allowed to Set/Change - Never created_by, id, etc.
 
-const TEAM_MEMBER_FIELDS = ['name', 'title', 'image_url', 'github', 'linkedin', 'display_order'];
+const TEAM_MEMBER_FIELDS = ['name', 'title', 'image_url', 'github', 'linkedin', 'display_order', 'tier', 'domain'];
 
 function pickTeamFields(body) {
 

@@ -8,7 +8,7 @@
 const express = require('express');
 const { getTeamMembers, createTeamMember, updateTeamMember, deleteTeamMember } = require('../controllers/teamController');
 const { verifyToken } = require('../middleware/authMiddleware');
-const { requireManager } = require('../middleware/roleMiddleware');
+const { requireCoordinator } = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
@@ -16,16 +16,16 @@ const router = express.Router();
 
 router.get('/', getTeamMembers);
 
-// Router: POST /api/team (Protected - Managers Only)
+// Router: POST /api/team (Protected - Coordinators Only)
 
-router.post('/', verifyToken, requireManager, createTeamMember);
+router.post('/', verifyToken, requireCoordinator, createTeamMember);
 
-// Router: PUT /api/team/:id (Protected - Managers Only)
+// Router: PUT /api/team/:id (Protected - Coordinators Only)
 
-router.put('/:id', verifyToken, requireManager, updateTeamMember);
+router.put('/:id', verifyToken, requireCoordinator, updateTeamMember);
 
-// Router: DELETE /api/team/:id (Protected - Managers Only)
+// Router: DELETE /api/team/:id (Protected - Coordinators Only)
 
-router.delete('/:id', verifyToken, requireManager, deleteTeamMember);
+router.delete('/:id', verifyToken, requireCoordinator, deleteTeamMember);
 
 module.exports = router;

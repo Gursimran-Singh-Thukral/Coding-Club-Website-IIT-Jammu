@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
-import { RequireManager } from "@/components/require-manager";
+import { RequireCoordinator } from "@/components/require-coordinator";
 import { TeamMemberForm } from "@/components/team/team-member-form";
 import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ export default function DashboardTeamPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-      <RequireManager>
+      <RequireCoordinator>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">{"// team management"}</p>
@@ -130,6 +130,10 @@ export default function DashboardTeamPage() {
                     <div className="min-w-0 flex-1">
                       <p className="font-heading font-semibold">{member.name}</p>
                       <p className="text-sm text-muted-foreground">{member.title}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {member.tier}
+                        {member.domain ? ` · ${member.domain}` : ""}
+                      </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <Button variant="outline" size="icon-sm" onClick={() => openEdit(member)} aria-label="Edit">
@@ -170,7 +174,7 @@ export default function DashboardTeamPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </RequireManager>
+      </RequireCoordinator>
     </div>
   );
 }

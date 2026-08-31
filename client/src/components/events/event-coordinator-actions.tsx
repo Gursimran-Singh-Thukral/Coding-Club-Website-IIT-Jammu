@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ClipboardList } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,12 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-export function EventManagerActions({ eventId, title }: { eventId: string; title: string }) {
-  const { isManager } = useAuth();
+export function EventCoordinatorActions({ eventId, title }: { eventId: string; title: string }) {
+  const { isCoordinator } = useAuth();
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
 
-  if (!isManager) return null;
+  if (!isCoordinator) return null;
 
   async function handleDelete() {
     setDeleting(true);
@@ -40,6 +40,9 @@ export function EventManagerActions({ eventId, title }: { eventId: string; title
 
   return (
     <div className="flex shrink-0 items-center gap-2">
+      <Button variant="outline" size="sm" render={<Link href={`/events/${eventId}/registrations`} />}>
+        <ClipboardList className="h-3.5 w-3.5" /> Registrations
+      </Button>
       <Button variant="outline" size="sm" render={<Link href={`/events/${eventId}/edit`} />}>
         <Pencil className="h-3.5 w-3.5" /> Edit
       </Button>

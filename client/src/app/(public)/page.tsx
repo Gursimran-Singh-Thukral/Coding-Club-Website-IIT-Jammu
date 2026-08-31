@@ -1,5 +1,5 @@
 import { fetchPublic } from "@/lib/api";
-import { isUpcoming } from "@/lib/utils";
+import { getEventStatus } from "@/lib/utils";
 import { HeroSection } from "@/components/hero-section";
 import { AboutSection } from "@/components/about-section";
 import { DomainsSection } from "@/components/domains-section";
@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   const nextEvent =
     eventsRes?.data
-      ?.filter((e) => isUpcoming(e.event_date))
+      ?.filter((e) => getEventStatus(e) !== "past")
       .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())[0] ?? null;
 
   return (

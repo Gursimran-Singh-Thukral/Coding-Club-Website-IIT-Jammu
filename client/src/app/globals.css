@@ -119,6 +119,33 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
+
+  /* Native date/time inputs default to a barely-visible dark-on-dark picker
+     icon and a plain white OS popup that clashes with the rest of the UI.
+     `color-scheme: dark` gets Chromium/Edge to render the popup itself in
+     dark mode. Trying to recolor the native icon itself via `filter` turned
+     out unreliable across browsers/versions, so instead it's made fully
+     invisible-but-still-clickable here, and components render their own
+     Lucide icon on top (see the `.date-time-field` wrapper below) for a
+     guaranteed-visible, on-brand icon regardless of browser. */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color-scheme: dark;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0;
+  }
+}
+
+/* Pairs with the ::-webkit-calendar-picker-indicator opacity:0 above - wrap
+   a date/time Input in this and absolutely-position a pointer-events-none
+   icon over it (see event-form.tsx for the pattern). */
+.date-time-field {
+  position: relative;
 }
 
 /* ---- Structure & utilities (flat, hairline-driven) ---- */

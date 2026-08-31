@@ -8,9 +8,12 @@
 const supabase = require('../config/supabaseClient');
 const { generateSecret } = require('otplib');
 
-// Fields a Manager is Allowed to Change via PUT - Never totp_secret, created_by, etc.
+// Fields a Coordinator is Allowed to Change via PUT - Never totp_secret, created_by, etc.
 
-const UPDATABLE_EVENT_FIELDS = ['title', 'description', 'event_date', 'venue', 'category'];
+const UPDATABLE_EVENT_FIELDS = [
+    'title', 'description', 'event_date', 'event_end', 'venue', 'category',
+    'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled'
+];
 
 // Create New Event
 
@@ -18,7 +21,10 @@ const createEvent = async (req, res) => {
 
     try{
 
-        const { title, description, event_date, venue, category } = req.body;
+        const {
+            title, description, event_date, event_end, venue, category,
+            registration_open, registration_mode, max_team_size, workspace_enabled
+        } = req.body;
 
         // Grab ID of the Person making the Request
 
@@ -30,6 +36,17 @@ const createEvent = async (req, res) => {
 
                 status: 'Error',
                 message: 'Title, Event Date and Venue are Required'
+
+            });
+
+        }
+
+        if(event_end && new Date(event_end) <= new Date(event_date)){
+
+            return res.status(400).json({
+
+                status: 'Error',
+                message: 'Event End Time must be After the Start Time'
 
             });
 
@@ -47,8 +64,13 @@ const createEvent = async (req, res) => {
                 title: title,
                 description: description,
                 event_date: event_date,
+                event_end: event_end || null,
                 venue: venue,
                 category: category || 'Workshop',
+                registration_open: registration_open ?? false,
+                registration_mode: registration_mode || 'individual',
+                max_team_size: max_team_size || 1,
+                workspace_enabled: workspace_enabled ?? false,
                 created_by: created_by,
                 totp_secret: totpSecret
 
@@ -150,13 +172,32 @@ const updateEvent = async (req, res) => {
 
         const eventId = req.params.id;
 
-        // Whitelist: Prevents a Manager Request from Tampering with totp_secret or created_by
+        // Whitelist: Prevents a Coordinator Request from Tampering with totp_secret or created_by
 
         const updates = {};
 
         for(const field of UPDATABLE_EVENT_FIELDS){
 
             if(req.body[field] !== undefined) updates[field] = req.body[field];
+
+        }
+
+        if(updates.event_end){
+
+            // Need the Other Side of the Range to Validate Against - Fetch it if the Caller Didn't Send a New event_date
+
+            const startDate = updates.event_date || (await supabase.from('events').select('event_date').eq('id', eventId).single()).data?.event_date;
+
+            if(startDate && new Date(updates.event_end) <= new Date(startDate)){
+
+                return res.status(400).json({
+
+                    status: 'Error',
+                    message: 'Event End Time must be After the Start Time'
+
+                });
+
+            }
 
         }
 

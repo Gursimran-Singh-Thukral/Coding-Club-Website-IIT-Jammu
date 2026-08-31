@@ -12,7 +12,7 @@ import { api, ApiError } from "@/lib/api";
 
 export function CodeEntryForm({ eventId }: { eventId: string }) {
   const searchParams = useSearchParams();
-  const [code, setCode] = useState(searchParams.get("code") ?? "");
+  const [code, setCode] = useState(searchParams?.get("code") ?? "");
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [error, setError] = useState<string | null>(null);
 

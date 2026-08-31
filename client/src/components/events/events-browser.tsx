@@ -7,20 +7,20 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { EventCard } from "@/components/events/event-card";
 import { useAuth } from "@/lib/auth-context";
-import { isUpcoming } from "@/lib/utils";
+import { getEventStatus } from "@/lib/utils";
 import type { ClubEvent, EventCategory } from "@/lib/types";
 
 const CATEGORIES: Array<EventCategory | "All"> = ["All", "Workshop", "Seminar", "Hackathon", "Talk"];
 
 export function EventsBrowser({ events }: { events: ClubEvent[] }) {
-  const { isManager } = useAuth();
+  const { isCoordinator } = useAuth();
   const [category, setCategory] = useState<string>("All");
   const [when, setWhen] = useState<"upcoming" | "past">("upcoming");
 
   const filtered = useMemo(() => {
     return events
       .filter((e) => category === "All" || e.category === category)
-      .filter((e) => (when === "upcoming" ? isUpcoming(e.event_date) : !isUpcoming(e.event_date)))
+      .filter((e) => (when === "upcoming" ? getEventStatus(e) !== "past" : getEventStatus(e) === "past"))
       .sort((a, b) => {
         const diff = new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
         return when === "upcoming" ? diff : -diff;
@@ -47,7 +47,7 @@ export function EventsBrowser({ events }: { events: ClubEvent[] }) {
               <TabsTrigger value="past">Past</TabsTrigger>
             </TabsList>
           </Tabs>
-          {isManager && (
+          {isCoordinator && (
             <Button size="sm" render={<Link href="/events/new" />}>
               <Plus className="h-4 w-4" /> New Event
             </Button>

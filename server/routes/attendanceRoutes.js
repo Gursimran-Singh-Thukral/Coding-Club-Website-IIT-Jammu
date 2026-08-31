@@ -1,7 +1,7 @@
 const express = require('express')
-const { markAttendance, getEventAttendance } = require('../controllers/attendanceController');
+const { markAttendance, getEventAttendance, getMyAttendance } = require('../controllers/attendanceController');
 const { verifyToken } = require('../middleware/authMiddleware');
-const { requireManager } = require('../middleware/roleMiddleware');
+const { requireCoordinator } = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
@@ -9,8 +9,12 @@ const router = express.Router();
 
 router.post('/', verifyToken, markAttendance);
 
-// Managers can view the Attendance for an Event
+// Any Logged-In User can Check whether THEY have Checked In - Backs the Workspace Unlock Gate
 
-router.get('/:eventId', verifyToken, requireManager, getEventAttendance);
+router.get('/:eventId/me', verifyToken, getMyAttendance);
+
+// Coordinators can view the Attendance for an Event
+
+router.get('/:eventId', verifyToken, requireCoordinator, getEventAttendance);
 
 module.exports = router;

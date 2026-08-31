@@ -5,19 +5,35 @@ import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
 
 import { cn } from "@/lib/utils"
 
+// Single source of truth for every avatar size used anywhere in the app -
+// add a tier here, never a one-off `className="size-*"` override at the
+// call site. xs-lg cover compact UI (nav, lists, dropdowns); xl-3xl cover
+// homepage/profile-scale portraits; 4xl-6xl cover the team page's
+// hierarchy cards (Team -> Field Specialist -> Coordinator -> Tech Sec).
+const AVATAR_SIZES = {
+  "2xl": "size-10 sm:size-20",
+  "3xl": "size-16 sm:size-26",
+  "4xl": "size-20 sm:size-30",
+  "5xl": "size-26 sm:size-36",
+  "6xl": "size-30 sm:size-40",
+} as const
+
+export type AvatarSize = keyof typeof AVATAR_SIZES
+
 function Avatar({
   className,
-  size = "default",
+  size = "3xl",
   ...props
 }: AvatarPrimitive.Root.Props & {
-  size?: "default" | "sm" | "lg"
+  size?: AvatarSize
 }) {
   return (
     <AvatarPrimitive.Root
       data-slot="avatar"
       data-size={size}
       className={cn(
-        "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten",
+        "group/avatar relative flex shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten",
+        AVATAR_SIZES[size],
         className
       )}
       {...props}
@@ -46,7 +62,7 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-surface-2 text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
+        "flex size-full items-center justify-center rounded-full bg-surface-2 text-sm text-muted-foreground group-data-[size=xs]/avatar:text-xs group-data-[size=sm]/avatar:text-xs",
         className
       )}
       {...props}
@@ -60,8 +76,9 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
       data-slot="avatar-badge"
       className={cn(
         "absolute right-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground bg-blend-color ring-2 ring-background select-none",
+        "group-data-[size=xs]/avatar:size-2 group-data-[size=xs]/avatar:[&>svg]:hidden",
         "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
-        "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
+        "group-data-[size=md]/avatar:size-2.5 group-data-[size=md]/avatar:[&>svg]:size-2",
         "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
         className
       )}

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 
 export default function DashboardOverviewPage() {
-  const { user, isManager } = useAuth();
+  const { user, isCoordinator } = useAuth();
   if (!user) return null;
 
   const profile = Array.isArray(user.profiles) ? user.profiles[0] : user.profiles;
@@ -68,7 +68,7 @@ export default function DashboardOverviewPage() {
           </CardContent>
         </Card>
 
-        {isManager && (
+        {isCoordinator && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 normal-case tracking-normal">

@@ -11,7 +11,7 @@ import { LiveCodeDisplay } from "@/components/attendance/live-code-display";
 import { AttendeeList } from "@/components/attendance/attendee-list";
 
 export function AttendanceWidget({ eventId }: { eventId: string }) {
-  const { user, loading, isManager } = useAuth();
+  const { user, loading, isCoordinator } = useAuth();
 
   if (loading) return <Skeleton className="h-40 w-full" />;
 
@@ -30,7 +30,7 @@ export function AttendanceWidget({ eventId }: { eventId: string }) {
     );
   }
 
-  if (isManager) {
+  if (isCoordinator) {
     return (
       <div className="grid gap-6 lg:grid-cols-2">
         <LiveCodeDisplay eventId={eventId} />

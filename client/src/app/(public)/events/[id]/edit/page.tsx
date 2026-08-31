@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { fetchPublic } from "@/lib/api";
-import { RequireManager } from "@/components/require-manager";
+import { RequireCoordinator } from "@/components/require-coordinator";
 import { EventForm } from "@/components/events/event-form";
 import type { ClubEvent } from "@/lib/types";
 
@@ -16,9 +16,9 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
       <p className="font-mono text-xs tracking-[0.2em] text-accent uppercase">{"// event management"}</p>
       <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight">Edit event</h1>
       <div className="mt-8">
-        <RequireManager>
+        <RequireCoordinator>
           <EventForm event={event} />
-        </RequireManager>
+        </RequireCoordinator>
       </div>
     </div>
   );
