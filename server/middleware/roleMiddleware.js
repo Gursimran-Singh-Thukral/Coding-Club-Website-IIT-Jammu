@@ -14,6 +14,12 @@ const supabase = require('../config/supabaseClient');
 
 const ADMIN_ROLES = ['Coordinator', 'Technical Secretary'];
 
+// Organizer-Tier Roles - Broader than ADMIN_ROLES. Field Specialists Run Event-Day
+// Logistics (e.g. Reading Out the Problem Statement to Their Group) but Don't Get
+// ADMIN_ROLES' Event-Mutation Privileges (Create/Edit/Delete Stays Coordinator-Only).
+
+const ORGANIZER_ROLES = [...ADMIN_ROLES, 'Field Specialist'];
+
 // Fresh DB Lookup (not the Possibly-Stale Role Embedded in the JWT) - so a Just-Assigned
 // or Just-Revoked Role Takes Effect Immediately, not after the Next Silent Token Refresh.
 
@@ -22,6 +28,14 @@ const isCoordinatorRole = async (userId) => {
     const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
 
     return !!user && ADMIN_ROLES.includes(user.role);
+
+};
+
+const isOrganizerRole = async (userId) => {
+
+    const { data: user } = await supabase.from('users').select('role').eq('id', userId).single();
+
+    return !!user && ORGANIZER_ROLES.includes(user.role);
 
 };
 
@@ -85,4 +99,4 @@ const requireCoordinator = async (req, res, next) => {
 
 };
 
-module.exports = { requireCoordinator, isCoordinatorRole, ADMIN_ROLES };
+module.exports = { requireCoordinator, isCoordinatorRole, isOrganizerRole, ADMIN_ROLES, ORGANIZER_ROLES };

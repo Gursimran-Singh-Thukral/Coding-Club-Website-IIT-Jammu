@@ -10,6 +10,9 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { acceptCompletion } from "@codemirror/autocomplete";
+import { Prec } from "@codemirror/state";
+import { keymap } from "@codemirror/view";
 import { ArrowLeft, Save, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api";
@@ -20,10 +23,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { EventSubmission } from "@/lib/types";
 
+// CodeMirror's default completion keymap only accepts the selected suggestion
+// on Enter - this adds Tab as a second accept key (VS Code-style). Falls
+// through to normal Tab-indent behavior when no completion popup is open,
+// since acceptCompletion returns false in that case. Must be Prec.highest:
+// @uiw/react-codemirror wires up its own `indentWithTab` keymap ahead of any
+// extensions passed in via the `extensions` prop, and that binding runs
+// unconditionally (it doesn't check for an open completion), so at default
+// precedence it would always win the race for the Tab key before this does.
+const acceptCompletionWithTab = Prec.highest(keymap.of([{ key: "Tab", run: acceptCompletion }]));
+
 const LANGUAGE_EXTENSIONS: Record<"html" | "css" | "js", Extension[]> = {
-  html: [html()],
-  css: [css()],
-  js: [javascript()],
+  html: [html(), acceptCompletionWithTab],
+  css: [css(), acceptCompletionWithTab],
+  js: [javascript(), acceptCompletionWithTab],
 };
 
 type Code = Pick<EventSubmission, "html" | "css" | "js">;

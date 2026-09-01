@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,6 +24,7 @@ const schema = z.object({
   category: z.enum(["Workshop", "Seminar", "Hackathon", "Talk"]),
   event_date: z.string().min(1, "Date & time is required"),
   end_time: z.string().optional(),
+  ps: z.string().optional(),
   registration_open: z.boolean(),
   registration_mode: z.enum(["individual", "team"]),
   max_team_size: z.coerce.number().int().min(1).max(20),
@@ -74,16 +76,35 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           category: event.category,
           event_date: toLocalInputValue(event.event_date),
           end_time: event.event_end ? toLocalTimeValue(event.event_end) : "",
+          ps: "",
           registration_open: event.registration_open,
           registration_mode: event.registration_mode,
           max_team_size: event.max_team_size,
           workspace_enabled: event.workspace_enabled,
         }
-      : { category: "Workshop", registration_open: false, registration_mode: "individual", max_team_size: 4, workspace_enabled: false },
+      : {
+          category: "Workshop",
+          ps: "",
+          registration_open: false,
+          registration_mode: "individual",
+          max_team_size: 4,
+          workspace_enabled: false,
+        },
   });
 
   const registrationOpen = watch("registration_open");
   const registrationMode = watch("registration_mode");
+
+  useEffect(() => {
+    // The PS Has its own Attendance/Role-Gated Endpoint (see eventController.js's
+    // getEventPs) - it's Deliberately Excluded from the Public GET /api/events
+    // Listing this Form's `event` Prop Comes From, so it has to be Fetched Separately.
+    if (!event) return;
+    api
+      .get<{ data: { ps: string | null } }>(`/api/events/${event.id}/ps`)
+      .then((res) => setValue("ps", res.data.ps ?? ""))
+      .catch(() => {});
+  }, [event, setValue]);
 
   async function onSubmit(values: FormOutput) {
     const { end_time, ...rest } = values;
@@ -121,6 +142,23 @@ export function EventForm({ event }: { event?: ClubEvent }) {
         <Textarea id="description" {...register("description")} className="mt-1" rows={4} />
       </div>
 
+      <div>
+        <Label htmlFor="ps">Problem statement (PS)</Label>
+        <Textarea
+          id="ps"
+          {...register("ps")}
+          className="mt-1 font-mono text-sm"
+          rows={18}
+          placeholder={"Overview\n\nRequirements\n- ...\n\nEvaluation criteria\n- ...\n\nSubmission instructions\n- ..."}
+        />
+        <p className="mt-1 text-xs text-muted-foreground">
+          As long as it needs to be - requirements, evaluation criteria, submission instructions, whatever the
+          event needs. Line breaks and spacing are preserved as typed. Visible to Coordinators, Technical
+          Secretaries and Field Specialists at all times. Everyone else only sees it after marking attendance for
+          this event.
+        </p>
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-3">
         <div>
           <Label htmlFor="event_date" className="flex items-center gap-1.5">
@@ -128,7 +166,14 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           </Label>
           <div className="date-time-field mt-1">
             <Input id="event_date" type="datetime-local" {...register("event_date")} className="pr-9" />
-            <CalendarClock className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-primary" />
+            <button
+              type="button"
+              aria-label="Open date picker"
+              onClick={() => (document.getElementById("event_date") as HTMLInputElement | null)?.showPicker?.()}
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-primary"
+            >
+              <CalendarClock className="h-4 w-4" />
+            </button>
           </div>
           {errors.event_date && <p className="mt-1 text-xs text-destructive">{errors.event_date.message}</p>}
         </div>
@@ -138,7 +183,14 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           </Label>
           <div className="date-time-field mt-1">
             <Input id="end_time" type="time" {...register("end_time")} className="pr-9" />
-            <Clock className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-primary" />
+            <button
+              type="button"
+              aria-label="Open time picker"
+              onClick={() => (document.getElementById("end_time") as HTMLInputElement | null)?.showPicker?.()}
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-primary"
+            >
+              <Clock className="h-4 w-4" />
+            </button>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Optional - lets the site show Live/Past correctly.</p>
         </div>

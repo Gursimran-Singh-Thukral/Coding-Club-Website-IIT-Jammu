@@ -7,6 +7,8 @@ import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { AttendanceWidget } from "@/components/attendance/attendance-widget";
 import { RegistrationWidget } from "@/components/events/registration-widget";
 import { EventCoordinatorActions } from "@/components/events/event-coordinator-actions";
+import { EventPsSection } from "@/components/events/event-ps-section";
+import { IntegrityMonitor } from "@/components/events/integrity-monitor";
 import type { ClubEvent } from "@/lib/types";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -49,6 +51,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
       <div className="mt-10">
         <AttendanceWidget eventId={event.id} />
+      </div>
+
+      <div className="mt-10">
+        <EventPsSection eventId={event.id} />
+      </div>
+
+      <div className="mt-10">
+        <IntegrityMonitor event={event} />
       </div>
     </div>
   );

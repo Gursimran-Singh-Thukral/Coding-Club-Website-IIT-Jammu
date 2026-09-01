@@ -7,13 +7,25 @@
 
 const supabase = require('../config/supabaseClient');
 const { generateSecret } = require('otplib');
+const { isOrganizerRole } = require('../middleware/roleMiddleware');
 
 // Fields a Coordinator is Allowed to Change via PUT - Never totp_secret, created_by, etc.
 
 const UPDATABLE_EVENT_FIELDS = [
     'title', 'description', 'event_date', 'event_end', 'venue', 'category',
-    'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled'
+    'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled', 'ps'
 ];
+
+// Columns Safe to Hand Back on the Public, Unauthenticated GET /api/events Listing.
+// Deliberately Excludes totp_secret (the Attendance-Code Seed) and ps (the Problem
+// Statement, which has its own Attendance/Role-Gated Endpoint below) - `select('*')`
+// would Leak Both to Anyone who Hits this Endpoint, Logged in or Not.
+
+const PUBLIC_EVENT_FIELDS = [
+    'id', 'title', 'description', 'event_date', 'event_end', 'venue', 'category',
+    'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled',
+    'created_by', 'created_at'
+].join(', ');
 
 // Create New Event
 
@@ -23,7 +35,7 @@ const createEvent = async (req, res) => {
 
         const {
             title, description, event_date, event_end, venue, category,
-            registration_open, registration_mode, max_team_size, workspace_enabled
+            registration_open, registration_mode, max_team_size, workspace_enabled, ps
         } = req.body;
 
         // Grab ID of the Person making the Request
@@ -71,6 +83,7 @@ const createEvent = async (req, res) => {
                 registration_mode: registration_mode || 'individual',
                 max_team_size: max_team_size || 1,
                 workspace_enabled: workspace_enabled ?? false,
+                ps: ps || null,
                 created_by: created_by,
                 totp_secret: totpSecret
 
@@ -124,7 +137,7 @@ const getEvents = async (req, res) => {
         const { data: events, error } = await supabase
 
             .from('events')
-            .select('*')
+            .select(PUBLIC_EVENT_FIELDS)
             .order('event_date', {ascending: true});
 
         if(error){
@@ -352,4 +365,79 @@ const getEventSecret = async (req, res) => {
 
 };
 
-module.exports = { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret };
+// Get an Event's Problem Statement - Organizers (Coordinator/Technical Secretary/
+// Field Specialist) can Always See it; Everyone Else must have Marked Attendance
+// for this Event First. Enforced Here, not just Hidden Client-Side.
+
+const getEventPs = async (req, res) => {
+
+    try{
+
+        const eventId = req.params.id;
+
+        const { data: event, error } = await supabase
+
+            .from('events')
+            .select('ps')
+            .eq('id', eventId)
+            .single();
+
+        if(error || !event){
+
+            return res.status(404).json({
+
+                status: 'Error',
+                message: 'Event Not Found'
+
+            });
+
+        }
+
+        if(!(await isOrganizerRole(req.user.id))){
+
+            const { data: record } = await supabase
+
+                .from('attendance')
+                .select('id')
+                .eq('event_id', eventId)
+                .eq('student_id', req.user.id)
+                .maybeSingle();
+
+            if(!record){
+
+                return res.status(403).json({
+
+                    status: 'Error',
+                    message: 'Mark Attendance First to See the Problem Statement'
+
+                });
+
+            }
+
+        }
+
+        return res.status(200).json({
+
+            status: 'Success',
+            data: { ps: event.ps }
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error('[Event Controller Error]: ', err.message);
+
+        return res.status(500).json({
+
+            status: 'Error',
+            message: 'Internal Server Error'
+
+        });
+
+    }
+
+};
+
+module.exports = { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret, getEventPs };
