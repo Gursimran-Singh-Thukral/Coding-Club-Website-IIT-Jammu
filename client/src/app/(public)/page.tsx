@@ -25,7 +25,7 @@ export default async function HomePage() {
       <AboutSection about={about} />
       <DomainsSection />
       <ProjectsPreview />
-      <TeamPreview team={teamRes?.data ?? []} />
+      {/* <TeamPreview team={teamRes?.data ?? []} /> */}
     </>
   );
 }

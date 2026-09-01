@@ -123,7 +123,7 @@ export default function DashboardTeamPage() {
                 <Card key={member.id}>
                   <CardContent className="flex items-center gap-4">
                     <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <Avatar size="lg">
+                    <Avatar>
                       <AvatarImage src={member.image_url ?? undefined} alt={member.name} />
                       <AvatarFallback>{initials(member.name)}</AvatarFallback>
                     </Avatar>

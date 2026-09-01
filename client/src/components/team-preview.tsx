@@ -17,7 +17,7 @@ export function TeamPreview({ team }: { team: TeamMember[] }) {
       <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-4 sm:pl-9">
         {team.map((member) => (
           <div key={member.id} className="flex flex-col items-center gap-2 bg-ground px-4 py-8 text-center transition-colors hover:bg-surface">
-            <Avatar size="xl">
+            <Avatar>
               <AvatarImage src={member.image_url ?? undefined} alt={member.name} />
               <AvatarFallback className="text-lg">{initials(member.name)}</AvatarFallback>
             </Avatar>

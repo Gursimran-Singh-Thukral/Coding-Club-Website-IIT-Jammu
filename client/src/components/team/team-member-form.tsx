@@ -162,7 +162,7 @@ export function TeamMemberForm({
       <div>
         <Label htmlFor="photo">Photo</Label>
         <div className="mt-1 flex items-center gap-3">
-          <Avatar size="xl">
+          <Avatar>
             <AvatarImage src={imageUrl || undefined} alt={name || "Preview"} />
             <AvatarFallback className="text-lg">{initials(name || "?")}</AvatarFallback>
           </Avatar>

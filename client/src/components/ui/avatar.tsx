@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 // homepage/profile-scale portraits; 4xl-6xl cover the team page's
 // hierarchy cards (Team -> Field Specialist -> Coordinator -> Tech Sec).
 const AVATAR_SIZES = {
+  "sm": "size-6, sm:size-10",
   "2xl": "size-10 sm:size-20",
   "3xl": "size-16 sm:size-26",
   "4xl": "size-20 sm:size-30",
