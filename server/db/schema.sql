@@ -18,11 +18,15 @@ CREATE TABLE public.users (
     full_name TEXT NOT NULL,
     email TEXT NOT NULL,
     student_id TEXT NOT NULL,
-    role student_role DEFAULT 'Student' :: student_role Not NULL,
+    role student_role DEFAULT 'Student' :: student_role NOT NULL,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 
 );
+
+-- This app mints its own UUIDs at signup (not Supabase Auth's), so the FK
+-- to auth.users can never be satisfied — drop it right after creation.
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_id_fkey;
 
 CREATE TABLE public.events (
 
@@ -30,10 +34,6 @@ CREATE TABLE public.events (
     title TEXT NOT NULL,
     description TEXT,
     event_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    end_date TIMESTAMP WITH TIME ZONE, 
-    category event_category DEFAULT 'Workshop' :: event_category NOT NULL,
-    
-=======
     event_end TIMESTAMP WITH TIME ZONE,
     venue TEXT NOT NULL,
     category event_category DEFAULT 'Workshop' :: event_category NOT NULL,
@@ -44,12 +44,21 @@ CREATE TABLE public.events (
     max_team_size INTEGER DEFAULT 1 NOT NULL,
     workspace_enabled BOOLEAN DEFAULT false NOT NULL,
 
->>>>>>> Stashed changes
     created_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    CONSTRAINT end_after_start CHECK (end_date IS NULL OR end_date > event_date)
+    totp_secret TEXT
 
-    totp_secret TEXT;
+);
+
+CREATE TABLE public.attendance (
+
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
+    student_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+
+    marked_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+
+    UNIQUE(event_id, student_id)
 
 );
 
@@ -57,7 +66,7 @@ CREATE TABLE public.profiles (
 
     user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
     bio TEXT,
-    avatar_url TEXT, 
+    avatar_url TEXT,
 
     -- External Handles
 
@@ -75,8 +84,6 @@ CREATE TABLE public.profiles (
 
 );
 
-<<<<<<< Updated upstream
-=======
 -- Tracks each login as a revocable session, keyed by the "sid" embedded in
 -- that login's refresh token. Lets a user see and sign out of other devices.
 
@@ -185,14 +192,10 @@ CREATE TABLE public.event_submissions (
 
 );
 
->>>>>>> Stashed changes
 -- Enabling Row Level Security
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-<<<<<<< Updated upstream
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-=======
 ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
@@ -200,4 +203,3 @@ ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_submissions ENABLE ROW LEVEL SECURITY;
->>>>>>> Stashed changes

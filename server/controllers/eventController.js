@@ -8,16 +8,12 @@
 const supabase = require('../config/supabaseClient');
 const { generateSecret } = require('otplib');
 
-<<<<<<< Updated upstream
-const { get } = require('../routes/userRoutes');
-=======
 // Fields a Coordinator is Allowed to Change via PUT - Never totp_secret, created_by, etc.
 
 const UPDATABLE_EVENT_FIELDS = [
     'title', 'description', 'event_date', 'event_end', 'venue', 'category',
     'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled'
 ];
->>>>>>> Stashed changes
 
 // Create New Event
 
@@ -175,9 +171,6 @@ const updateEvent = async (req, res) => {
     try{
 
         const eventId = req.params.id;
-<<<<<<< Updated upstream
-        const updates = req.body;
-=======
 
         // Whitelist: Prevents a Coordinator Request from Tampering with totp_secret or created_by
 
@@ -188,7 +181,6 @@ const updateEvent = async (req, res) => {
             if(req.body[field] !== undefined) updates[field] = req.body[field];
 
         }
->>>>>>> Stashed changes
 
         if(updates.event_end){
 

@@ -1,5 +1,7 @@
 design-data
 .env
 node_modules/
+
 .next/
-client/.next/
+client/.next
+client/node_modules/

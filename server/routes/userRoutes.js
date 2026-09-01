@@ -6,25 +6,20 @@
 */
 
 const express = require('express');
-<<<<<<< Updated upstream
-const { syncUserProfile } = require('../controllers/userController');
-const { verifyAuth } = require('../middleware/authMiddleware');
-=======
 const { syncUserProfile, listUsers, updateUserRole } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { requireCoordinator } = require('../middleware/roleMiddleware');
->>>>>>> Stashed changes
 
 const router = express.Router();
 
 /*
 
     Route: GET /api/users/profile
-    The verifyAuth middleware Runs First. If Successful, syncUserProfile Runs.
+    The verifyToken middleware Runs First. If Successful, syncUserProfile Runs.
 
 */
 
-router.get('/profile', verifyAuth, syncUserProfile);
+router.get('/profile', verifyToken, syncUserProfile);
 
 // Route: GET /api/users - List Every Registered User (Coordinator-Only)
 
