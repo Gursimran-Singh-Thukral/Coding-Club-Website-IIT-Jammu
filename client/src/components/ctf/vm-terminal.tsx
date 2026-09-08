@@ -131,50 +131,51 @@ export function VmTerminal() {
           if (msg.type === "vm_output") {
             const raw = msg.payload || "";
 
-            // ── Strip screen-clearing escape sequences ──────────────────────
-            // The Alpine kernel sends \x1bc (full terminal reset / RIS) and
-            // \x1b[2J (erase display) the moment it takes over from ISOLINUX.
-            // These would blank xterm for the entire ~90 s TCG boot. We strip
-            // them and print a status line instead so the screen stays visible.
-            const SCREEN_CLEAR_RE = /(\x1bc|\x1b\[2J|\x1b\[\?7l|\x1b\[\?7h)/g;
-            const kernelTookOver = SCREEN_CLEAR_RE.test(raw);
-            const chunk = raw.replace(SCREEN_CLEAR_RE, "");
+            // ── Write raw bytes to xterm so VT100 codes work correctly ────────
+            // This lets xterm handle resets/clears properly (no garbling).
+            terminal.write(raw);
 
-            if (kernelTookOver && !bootComplete) {
-              terminal.writeln("\r\n\x1b[36m[System] Kernel loaded — booting Alpine Linux (TCG mode, ~60-90 s)...\x1b[0m");
-              terminal.writeln("\x1b[90m[System] Screen output is suppressed during kernel init. Please wait.\x1b[0m");
+            // ── After any screen-clear, overlay our status message ────────────
+            // The Alpine kernel sends \x1bc (RIS/reset) + \x1b[2J (erase) right
+            // after ISOLINUX hands over. xterm clears itself — we immediately
+            // write a status line so users see something instead of a blank screen.
+            // Use a fresh regex each time to avoid global-regex lastIndex bugs.
+            if (!bootComplete && /\x1bc|\x1b\[2J/.test(raw)) {
+              terminal.writeln("\r\n\x1b[36m[System] Kernel booting (TCG emulation — please wait 2-3 min)...\x1b[0m");
+              terminal.writeln("\x1b[90m[System] You will see 'localhost login:' when boot is complete.\x1b[0m");
             }
 
-            if (chunk) {
-              terminal.write(chunk);
-              outputBuffer += chunk;
-            }
+            // ── Strip ALL escape sequences for text analysis only ─────────────
+            // We must NOT match escape codes as text (e.g. 'login:' inside CSI).
+            const stripped = raw.replace(/\x1b\[[^a-zA-Z]*[a-zA-Z]|\x1b[()][AB012]|\x1bc/g, "");
+            outputBuffer += stripped;
 
-            // 1. Auto-press enter when ISOLINUX shows "boot:"
+            // 1. Auto-press Enter at ISOLINUX boot: prompt
             if (!skippedBootMenu && outputBuffer.includes("boot:")) {
               skippedBootMenu = true;
-              terminal.writeln("\r\n\x1b[36m[System] Starting kernel...\x1b[0m");
+              terminal.writeln("\r\n\x1b[36m[System] Boot menu detected — auto-selecting default kernel...\x1b[0m");
               if (newWs.readyState === WebSocket.OPEN) {
                 newWs.send(JSON.stringify({ type: "input", payload: "\r" }));
               }
-              // Periodically poke ttyS0 to wake agetty once kernel finishes booting
+              // Poke ttyS0 every 8s to wake agetty once the kernel finishes init
               if (!pokeInterval) {
                 pokeInterval = setInterval(() => {
                   if (!bootComplete && newWs.readyState === WebSocket.OPEN) {
                     newWs.send(JSON.stringify({ type: "input", payload: "\r" }));
                   }
-                }, 4000);
+                }, 8000);
               }
             }
 
-            // 2. Detect login prompt — only fire once
-            if (!bootComplete && (outputBuffer.includes("login:") || outputBuffer.includes("localhost login") || outputBuffer.includes("Welcome to Alpine"))) {
+            // 2. Detect login prompt — only announce once
+            if (!bootComplete && (
+              outputBuffer.includes("login:") ||
+              outputBuffer.includes("localhost login") ||
+              outputBuffer.includes("Welcome to Alpine")
+            )) {
               bootComplete = true;
-              if (pokeInterval) {
-                clearInterval(pokeInterval);
-                pokeInterval = null;
-              }
-              terminal.writeln("\r\n\x1b[32m[System] Boot complete! Username: 'root' (press Enter to begin)\x1b[0m\r\n");
+              if (pokeInterval) { clearInterval(pokeInterval); pokeInterval = null; }
+              terminal.writeln("\r\n\x1b[32m[System] Boot complete! Username: 'root' — press Enter to log in.\x1b[0m\r\n");
             }
           } else if (msg.type === "flag_found") {
             toast.success("Flag accepted!");
@@ -182,9 +183,10 @@ export function VmTerminal() {
             terminal.writeln(`\r\n[ERROR] ${msg.payload}\r\n`);
           }
         } catch (e) {
-          // ignore parsing error
+          // ignore parse errors (keepalive pings, etc.)
         }
       };
+
     };
 
     connectWS();
