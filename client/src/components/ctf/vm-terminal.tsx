@@ -182,51 +182,70 @@ export function VmTerminal() {
   const startSession = async (challenge: any) => {
     toast.info("Starting VM session…");
 
-    // ── Strategy: call the VM runner DIRECTLY (it sets CORS: *) ──────────────
-    // Render's edge proxy has a hard 30 s gateway timeout, so going via the
-    // Express proxy (/api/sessions → vm-runner) reliably 504s while QEMU boots.
-    // Calling the vm-runner directly skips that proxy layer entirely.
+    // ── Always call the VM runner DIRECTLY ───────────────────────────────────
+    // Render's edge proxy has a hard 30 s gateway timeout, so going through
+    // Express (/api/sessions → vm-runner) reliably 504s while QEMU boots.
+    // The vm-runner has CORS: *, so the browser can call it directly.
     const vmRunnerBase = (process.env.NEXT_PUBLIC_VM_RUNNER_URL || "http://localhost:8080").replace(/\/$/, "");
+    const userIdentifier = user?.email || "guest";
 
     let payload: any = null;
 
-    // 1️⃣ Try direct call to vm-runner (no proxy, no gateway timeout).
+    // 1️⃣ Direct call to vm-runner (bypasses Render's 30 s gateway).
     try {
       const res = await fetch(`${vmRunnerBase}/api/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-VMRunner-User": user?.email || "guest",
+          "X-VMRunner-User": userIdentifier,
           "X-VMRunner-Role": "user",
         },
         body: JSON.stringify({ challenge_id: challenge.id }),
-        signal: AbortSignal.timeout(90_000), // 90 s – enough for QEMU cold start
+        signal: AbortSignal.timeout(90_000), // 90 s – enough for QEMU TCG cold start
       });
       if (res.ok) {
         payload = await res.json();
       } else {
-        console.warn(`Direct vm-runner POST returned ${res.status}; falling back to proxy.`);
+        const body = await res.text().catch(() => "");
+        const detail = body || res.statusText;
+        console.error(`Direct vm-runner POST ${res.status}: ${detail}`);
+        // If vm-runner is on a different origin (production), stop here — 
+        // the proxy fallback will just 504 anyway.
+        if (vmRunnerBase !== "http://localhost:8080") {
+          toast.error(`VM error ${res.status}: ${detail}. Please retry.`);
+          return;
+        }
       }
-    } catch (directErr) {
-      console.warn("Direct vm-runner call failed; falling back to proxy.", directErr);
+    } catch (directErr: any) {
+      console.warn("Direct vm-runner call failed:", directErr?.message);
+      if (vmRunnerBase !== "http://localhost:8080") {
+        toast.error("Could not reach VM runner. Check your connection and retry.");
+        return;
+      }
     }
 
-    // 2️⃣ Fall back to Express proxy (works locally or when Render cold-start is fast)
+    // 2️⃣ Proxy fallback — only reached in local dev (vmRunnerBase = localhost:8080)
     if (!payload) {
       try {
         payload = await api.post<any>("/api/sessions", { challenge_id: challenge.id });
-      } catch (proxyErr) {
-        toast.error("Could not start VM session – the server may be waking up. Please retry in 30 s.");
-        console.error("Proxy fallback also failed:", proxyErr);
+      } catch (proxyErr: any) {
+        toast.error("Could not start VM session. Please retry.");
+        console.error("Proxy fallback failed:", proxyErr);
         return;
       }
+    }
+
+    if (!payload) {
+      toast.error("Unexpected empty response from VM runner. Please retry.");
+      return;
     }
 
     const newSession = payload.session || payload;
     setSession(newSession);
     setSelectedChallenge(challenge);
-    // The WebSocket will be connected by the useEffect watching session.id
+    // WebSocket connection is established by the useEffect watching session.id
   };
+
 
   const stopSession = async () => {
     if (!session) return;
