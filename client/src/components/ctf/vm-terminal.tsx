@@ -129,9 +129,26 @@ export function VmTerminal() {
         try {
           const msg = JSON.parse(ev.data);
           if (msg.type === "vm_output") {
-            const chunk = msg.payload || "";
-            terminal.write(chunk);
-            outputBuffer += chunk;
+            const raw = msg.payload || "";
+
+            // ── Strip screen-clearing escape sequences ──────────────────────
+            // The Alpine kernel sends \x1bc (full terminal reset / RIS) and
+            // \x1b[2J (erase display) the moment it takes over from ISOLINUX.
+            // These would blank xterm for the entire ~90 s TCG boot. We strip
+            // them and print a status line instead so the screen stays visible.
+            const SCREEN_CLEAR_RE = /(\x1bc|\x1b\[2J|\x1b\[\?7l|\x1b\[\?7h)/g;
+            const kernelTookOver = SCREEN_CLEAR_RE.test(raw);
+            const chunk = raw.replace(SCREEN_CLEAR_RE, "");
+
+            if (kernelTookOver && !bootComplete) {
+              terminal.writeln("\r\n\x1b[36m[System] Kernel loaded — booting Alpine Linux (TCG mode, ~60-90 s)...\x1b[0m");
+              terminal.writeln("\x1b[90m[System] Screen output is suppressed during kernel init. Please wait.\x1b[0m");
+            }
+
+            if (chunk) {
+              terminal.write(chunk);
+              outputBuffer += chunk;
+            }
 
             // 1. Auto-press enter when ISOLINUX shows "boot:"
             if (!skippedBootMenu && outputBuffer.includes("boot:")) {
@@ -140,7 +157,7 @@ export function VmTerminal() {
               if (newWs.readyState === WebSocket.OPEN) {
                 newWs.send(JSON.stringify({ type: "input", payload: "\r" }));
               }
-              // Start a periodic poke to wake getty as soon as the kernel finishes booting
+              // Periodically poke ttyS0 to wake agetty once kernel finishes booting
               if (!pokeInterval) {
                 pokeInterval = setInterval(() => {
                   if (!bootComplete && newWs.readyState === WebSocket.OPEN) {
@@ -150,7 +167,7 @@ export function VmTerminal() {
               }
             }
 
-            // 2. Detect login prompt (only once when booting completes)
+            // 2. Detect login prompt — only fire once
             if (!bootComplete && (outputBuffer.includes("login:") || outputBuffer.includes("localhost login") || outputBuffer.includes("Welcome to Alpine"))) {
               bootComplete = true;
               if (pokeInterval) {
