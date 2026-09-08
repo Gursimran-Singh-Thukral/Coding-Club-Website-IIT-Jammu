@@ -80,6 +80,8 @@ const vmProxy = createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: (path, req) => req.originalUrl || req.url,
   ws: true, // proxy websockets
+  proxyTimeout: 120000,
+  timeout: 120000,
   on: {
     proxyReq: (proxyReq, req, res) => {
       const userEmail = req.user?.email || 'guest';

@@ -180,19 +180,48 @@ export function VmTerminal() {
   }, [session?.id]);
 
   const startSession = async (challenge: any) => {
+    toast.info("Starting VM session…");
+
+    // ── Strategy: call the VM runner DIRECTLY (it sets CORS: *) ──────────────
+    // Render's edge proxy has a hard 30 s gateway timeout, so going via the
+    // Express proxy (/api/sessions → vm-runner) reliably 504s while QEMU boots.
+    // Calling the vm-runner directly skips that proxy layer entirely.
+    const vmRunnerBase = (process.env.NEXT_PUBLIC_VM_RUNNER_URL || "http://localhost:8080").replace(/\/$/, "");
+
+    let payload: any = null;
+
+    // 1️⃣ Try direct call to vm-runner (no proxy, no gateway timeout).
     try {
-      toast.info("Starting VM session...");
-      const payload = await api.post<any>("/api/sessions", { challenge_id: challenge.id });
-      
-      const newSession = payload.session || payload;
-      setSession(newSession);
-      setSelectedChallenge(challenge);
-      
-      // The WebSocket will be connected by the useEffect
-    } catch (err) {
-      toast.error("Error starting VM session.");
-      console.error(err);
+      const res = await fetch(`${vmRunnerBase}/api/sessions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-VMRunner-Role": "user" },
+        body: JSON.stringify({ challenge_id: challenge.id }),
+        signal: AbortSignal.timeout(90_000), // 90 s – enough for QEMU cold start
+      });
+      if (res.ok) {
+        payload = await res.json();
+      } else {
+        console.warn(`Direct vm-runner POST returned ${res.status}; falling back to proxy.`);
+      }
+    } catch (directErr) {
+      console.warn("Direct vm-runner call failed; falling back to proxy.", directErr);
     }
+
+    // 2️⃣ Fall back to Express proxy (works locally or when Render cold-start is fast)
+    if (!payload) {
+      try {
+        payload = await api.post<any>("/api/sessions", { challenge_id: challenge.id });
+      } catch (proxyErr) {
+        toast.error("Could not start VM session – the server may be waking up. Please retry in 30 s.");
+        console.error("Proxy fallback also failed:", proxyErr);
+        return;
+      }
+    }
+
+    const newSession = payload.session || payload;
+    setSession(newSession);
+    setSelectedChallenge(challenge);
+    // The WebSocket will be connected by the useEffect watching session.id
   };
 
   const stopSession = async () => {
