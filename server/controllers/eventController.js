@@ -24,7 +24,7 @@ const UPDATABLE_EVENT_FIELDS = [
 const PUBLIC_EVENT_FIELDS = [
     'id', 'title', 'description', 'event_date', 'event_end', 'venue', 'category',
     'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled',
-    'created_by', 'created_at', 'is_private', 'workspace_type'
+    'created_by', 'created_at', 'is_private', 'workspace_type', 'livestream_session_id'
 ].join(', ');
 
 // Create New Event
@@ -462,4 +462,30 @@ const getEventPs = async (req, res) => {
 
 };
 
-module.exports = { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret, getEventPs };
+const startLivestream = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { session_id } = req.body;
+        if (!session_id) return res.status(400).json({ error: 'Session ID is required' });
+        const { data, error } = await supabase.from('events').update({ livestream_session_id: session_id }).eq('id', id).select();
+        if (error) throw error;
+        res.status(200).json(data[0]);
+    } catch (err) {
+        console.error('Error starting livestream:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+const stopLivestream = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { data, error } = await supabase.from('events').update({ livestream_session_id: null }).eq('id', id).select();
+        if (error) throw error;
+        res.status(200).json(data[0]);
+    } catch (err) {
+        console.error('Error stopping livestream:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+module.exports = { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret, getEventPs, startLivestream, stopLivestream };

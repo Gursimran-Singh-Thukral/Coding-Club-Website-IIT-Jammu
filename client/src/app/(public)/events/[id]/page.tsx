@@ -13,6 +13,7 @@ import { EventPsSection } from "@/components/events/event-ps-section";
 import { IntegrityMonitor } from "@/components/events/integrity-monitor";
 import { CtfBoard } from "@/components/ctf/ctf-board";
 import { CtfLeaderboard } from "@/components/ctf/ctf-leaderboard";
+import { LivestreamViewer } from "@/components/events/livestream-viewer";
 import type { ClubEvent } from "@/lib/types";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -75,6 +76,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       )}
 
       <div className="mt-10">
+        <LivestreamViewer event={event} />
+      </div>
+
+      <div className="mt-10">
         <IntegrityMonitor event={event} />
       </div>
 
@@ -88,7 +93,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
               Join the interactive live session where you can see the instructor's code in real-time and experiment in your own sandbox.
             </p>
           </div>
-          <Button render={<Link href={`/cybersecurity`} />}>
+          <Button render={<Link href={`/cybersecurity?eventId=${event.id}`} />}>
             Enter Live Session
           </Button>
         </div>

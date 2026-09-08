@@ -7,7 +7,7 @@
 */
 
 const express = require('express');
-const { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret, getEventPs } =  require('../controllers/eventController');
+const { createEvent, getEvents, updateEvent, deleteEvent, getEventSecret, getEventPs, startLivestream, stopLivestream } =  require('../controllers/eventController');
 const {
     createTeam, joinTeam, getMyTeam, leaveTeam, listRegistrations, removeTeam
 } = require('../controllers/registrationController');
@@ -41,6 +41,8 @@ router.put('/:id', verifyToken, requireCoordinator, updateEvent);
 // Router: DELETE /api/events (Protected - Only Logged-in Users can delete)
 
 router.delete('/:id', verifyToken, requireCoordinator, deleteEvent);
+router.post('/:id/livestream/start', verifyToken, requireCoordinator, startLivestream);
+router.post('/:id/livestream/stop', verifyToken, requireCoordinator, stopLivestream);
 
 // Router: Private Event Invites
 

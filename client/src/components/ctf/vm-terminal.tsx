@@ -8,9 +8,15 @@ import { api, API_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Play, SquareTerminal, StopCircle, Trophy } from "lucide-react";
+import { Play, SquareTerminal, StopCircle, Trophy, Radio } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 
 export function VmTerminal() {
+  const searchParams = useSearchParams();
+  const eventId = searchParams.get("eventId");
+  const { isCoordinator } = useAuth();
+  const [isLivestreaming, setIsLivestreaming] = useState(false);
   const terminalContainerRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -234,6 +240,31 @@ export function VmTerminal() {
               <span className="font-mono text-sm">{selectedChallenge?.title}</span>
               <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-xs">Running</span>
             </div>
+            {isCoordinator && eventId && (
+              <Button 
+                variant={isLivestreaming ? "destructive" : "secondary"} 
+                size="sm" 
+                className="h-7 text-xs"
+                onClick={async () => {
+                  try {
+                    if (isLivestreaming) {
+                      await api.post(`/api/events/${eventId}/livestream/stop`);
+                      setIsLivestreaming(false);
+                      toast.success("Livestream stopped");
+                    } else {
+                      await api.post(`/api/events/${eventId}/livestream/start`, { session_id: session.id });
+                      setIsLivestreaming(true);
+                      toast.success("Livestream started");
+                    }
+                  } catch (err) {
+                    toast.error("Failed to toggle livestream");
+                  }
+                }}
+              >
+                <Radio className="h-3 w-3 mr-1" />
+                {isLivestreaming ? "Stop Livestream" : "Start Livestream"}
+              </Button>
+            )}
             <div className="flex items-center gap-4">
               <form onSubmit={submitFlag} className="flex items-center gap-2">
                 <Input 

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { VmTerminal } from "@/components/ctf/vm-terminal-wrapper";
 
 export const metadata = { title: "Cybersecurity · Coding Club IIT Jammu" };
@@ -14,7 +15,9 @@ export default function CybersecurityPage() {
       </div>
 
       <div className="mt-8 flex-1 border rounded-lg overflow-hidden bg-background flex">
-        <VmTerminal />
+        <Suspense fallback={<div className="p-8">Loading Terminal...</div>}>
+          <VmTerminal />
+        </Suspense>
       </div>
     </div>
   );

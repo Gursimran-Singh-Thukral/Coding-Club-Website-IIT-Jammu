@@ -62,6 +62,7 @@ export interface ClubEvent {
   is_private: boolean;
   created_by: string | null;
   created_at: string;
+  livestream_session_id?: string | null;
 }
 
 export type EventStatus = "past" | "live" | "upcoming";

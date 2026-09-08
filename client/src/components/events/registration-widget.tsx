@@ -49,7 +49,7 @@ export function RegistrationWidget({ event }: { event: ClubEvent }) {
     setBusy(true);
     try {
       const res = await api.post<{ data: EventTeam }>(`/api/events/${event.id}/teams`, {
-        team_name: user!.full_name,
+        team_name: user!.full_name || user!.email.split('@')[0],
       });
       setTeam(res.data);
       toast.success("You're registered!");
