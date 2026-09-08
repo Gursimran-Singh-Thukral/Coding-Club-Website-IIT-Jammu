@@ -47,7 +47,7 @@ export async function apiFetch<T = unknown>(
     ...options,
     credentials: "include",
     headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !(options.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
       ...options.headers,
     },
   });
@@ -74,15 +74,12 @@ export async function apiFetch<T = unknown>(
 export const api = {
   get: <T>(path: string) => apiFetch<T>(path),
   post: <T>(path: string, body?: unknown) =>
-    apiFetch<T>(path, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined }),
+    apiFetch<T>(path, { method: "POST", body: body instanceof FormData ? body : (body !== undefined ? JSON.stringify(body) : undefined) }),
   put: <T>(path: string, body?: unknown) =>
-    apiFetch<T>(path, { method: "PUT", body: body !== undefined ? JSON.stringify(body) : undefined }),
+    apiFetch<T>(path, { method: "PUT", body: body instanceof FormData ? body : (body !== undefined ? JSON.stringify(body) : undefined) }),
   delete: <T>(path: string) => apiFetch<T>(path, { method: "DELETE" }),
 };
 
-/** Server Component fetch for public, unauthenticated endpoints. Never
- * throws — callers get `null` on failure so pages can degrade gracefully
- * when the API is unreachable during rendering. */
 export async function fetchPublic<T>(path: string): Promise<T | null> {
   try {
     const res = await fetch(`${API_URL}${path}`, { cache: "no-store" });
@@ -92,3 +89,4 @@ export async function fetchPublic<T>(path: string): Promise<T | null> {
     return null;
   }
 }
+

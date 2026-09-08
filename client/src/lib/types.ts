@@ -44,6 +44,7 @@ export interface SessionUser {
 }
 
 export type RegistrationMode = "individual" | "team";
+export type WorkspaceType = "web" | "cpp" | "python" | "cybersec" | "gamedev";
 
 export interface ClubEvent {
   id: string;
@@ -57,6 +58,8 @@ export interface ClubEvent {
   registration_mode: RegistrationMode;
   max_team_size: number;
   workspace_enabled: boolean;
+  workspace_type: WorkspaceType;
+  is_private: boolean;
   created_by: string | null;
   created_at: string;
 }

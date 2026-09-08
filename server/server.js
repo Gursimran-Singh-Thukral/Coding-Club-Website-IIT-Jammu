@@ -11,7 +11,11 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
 
 // Behind a VM's reverse proxy, req.ip otherwise reports the proxy's address.
 // Off by default so an untrusted X-Forwarded-For can't spoof it in local dev.
@@ -42,12 +46,61 @@ app.use(cors({
   credentials: true                     // For Sending and Receiving Cookies
 
 }));
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+
+// Setup Live Workshop Sockets
+io.on('connection', (socket) => {
+  socket.on('join-workshop', (eventId) => {
+    socket.join(`workshop-${eventId}`);
+  });
+
+  socket.on('live-code-update', ({ eventId, code }) => {
+    // Broadcast to everyone else in the room
+    socket.to(`workshop-${eventId}`).emit('live-code-update', code);
+  });
+});
    // Allows Frontend to Connect with Backend
 // Middleware
 
 // Raised from the 100kb default - team member photos are uploaded as base64
 // data URIs in the JSON body (client-side compressed, but base64 still
 // inflates size ~33% over the raw file).
+// Moved proxy routes above express.json() to prevent body-parsing issues with http-proxy-middleware
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const { verifyTokenOptional } = require('./middleware/authMiddleware');
+
+const vmProxy = createProxyMiddleware({
+  target: 'http://localhost:8080',
+  changeOrigin: true,
+  pathRewrite: (path, req) => req.originalUrl || req.url,
+  ws: true, // proxy websockets
+  on: {
+    proxyReq: (proxyReq, req, res) => {
+      const userEmail = req.user?.email || 'guest';
+      proxyReq.setHeader('X-VMRunner-User', userEmail);
+      proxyReq.setHeader('X-VMRunner-Role', 'user');
+    },
+    proxyRes: (proxyRes, req, res) => {
+      delete proxyRes.headers['access-control-allow-origin'];
+      delete proxyRes.headers['access-control-allow-methods'];
+      delete proxyRes.headers['access-control-allow-headers'];
+      delete proxyRes.headers['access-control-allow-credentials'];
+    }
+  }
+});
+
+app.use(cookieParser());
+app.use('/api/ctfs', verifyTokenOptional, vmProxy);
+app.use('/api/sessions', verifyTokenOptional, vmProxy);
+app.use('/ws/session', vmProxy);
+app.use('/vnc/session', vmProxy);
+
 app.use(express.json({ limit: '3mb' }));
 app.use(cookieParser());
 
@@ -109,6 +162,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/users', userRoutes);
 
+
+
+
+
+
 app.get('/api/about', (req, res) => {
   res.status(200).json({
     heroSubtitle: "The official hub for IIT Jammu's developer ecosystem.",
@@ -147,8 +205,12 @@ app.get('/api/projects', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+server.on('upgrade', (req, socket, head) => {
+  if (req.url.startsWith('/ws/') || req.url.startsWith('/vnc/')) {
+    vmProxy.upgrade(req, socket, head);
+  }
+});
 
+server.listen(PORT, () => {
     console.log(`[Server] Initialization Complete. Listening on Port ${PORT}`);
-
 });

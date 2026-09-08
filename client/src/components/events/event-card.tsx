@@ -12,7 +12,10 @@ export function EventCard({ event }: { event: ClubEvent }) {
       <Card className="h-full group-hover:border-primary/40 group-hover:bg-surface-2">
         <CardContent className="flex h-full flex-col">
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="secondary">{event.category}</Badge>
+            <div className="flex gap-2">
+              <Badge variant="secondary">{event.category}</Badge>
+              {event.is_private && <Badge variant="outline" className="border-red-500 text-red-500">Private</Badge>}
+            </div>
             <EventStatusBadge event={event} />
           </div>
           <h3 className="mt-3 font-heading text-lg font-semibold group-hover:underline">{event.title}</h3>

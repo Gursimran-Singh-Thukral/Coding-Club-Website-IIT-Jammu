@@ -1,11 +1,11 @@
-import { fetchPublic } from "@/lib/api";
+import { fetchServer } from "@/lib/api-server";
 import { EventsBrowser } from "@/components/events/events-browser";
 import type { ClubEvent } from "@/lib/types";
 
 export const metadata = { title: "Events · Coding Club IIT Jammu" };
 
 export default async function EventsPage() {
-  const res = await fetchPublic<{ data: ClubEvent[] }>("/api/events");
+  const res = await fetchServer<{ data: ClubEvent[] }>("/api/events");
   const events = res?.data ?? [];
 
   return (

@@ -1,19 +1,23 @@
 import { notFound } from "next/navigation";
-import { CalendarDays, MapPin } from "lucide-react";
-import { fetchPublic } from "@/lib/api";
+import { CalendarDays, MapPin, MonitorPlay } from "lucide-react";
+import { fetchServer } from "@/lib/api-server";
 import { formatEventDate, formatEventTimeRange } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { EventStatusBadge } from "@/components/events/event-status-badge";
 import { AttendanceWidget } from "@/components/attendance/attendance-widget";
 import { RegistrationWidget } from "@/components/events/registration-widget";
 import { EventCoordinatorActions } from "@/components/events/event-coordinator-actions";
 import { EventPsSection } from "@/components/events/event-ps-section";
 import { IntegrityMonitor } from "@/components/events/integrity-monitor";
+import { CtfBoard } from "@/components/ctf/ctf-board";
+import { CtfLeaderboard } from "@/components/ctf/ctf-leaderboard";
 import type { ClubEvent } from "@/lib/types";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const res = await fetchPublic<{ data: ClubEvent[] }>("/api/events");
+  const res = await fetchServer<{ data: ClubEvent[] }>("/api/events");
   const event = res?.data.find((e) => e.id === id);
 
   if (!event) notFound();
@@ -24,6 +28,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary">{event.category}</Badge>
+            {event.is_private && <Badge variant="outline" className="border-red-500 text-red-500">Private</Badge>}
             <EventStatusBadge event={event} />
           </div>
           <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight">{event.title}</h1>
@@ -38,7 +43,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </span>
           </div>
         </div>
-        <EventCoordinatorActions eventId={event.id} title={event.title} />
+        <EventCoordinatorActions eventId={event.id} title={event.title} isPrivate={event.is_private} />
       </div>
 
       {event.description && <p className="mt-8 max-w-2xl leading-relaxed text-muted-foreground">{event.description}</p>}
@@ -57,9 +62,37 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <EventPsSection eventId={event.id} />
       </div>
 
+      {event.category === "Hackathon" && (
+        <div className="mt-10 space-y-10">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
+              Capture The Flag (CTF)
+            </h2>
+            <CtfBoard eventId={event.id} />
+          </div>
+          <CtfLeaderboard eventId={event.id} />
+        </div>
+      )}
+
       <div className="mt-10">
         <IntegrityMonitor event={event} />
       </div>
+
+      {event.category === "Workshop" && (
+        <div className="mt-10 flex flex-col items-start gap-4 p-6 bg-muted/50 rounded-lg border">
+          <div>
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <MonitorPlay className="h-5 w-5 text-primary" /> Live Workshop Environment
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Join the interactive live session where you can see the instructor's code in real-time and experiment in your own sandbox.
+            </p>
+          </div>
+          <Button render={<Link href={`/cybersecurity`} />}>
+            Enter Live Session
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { ClubEvent, EventCategory } from "@/lib/types";
+import type { ClubEvent, EventCategory, WorkspaceType } from "@/lib/types";
 
 const CATEGORIES: EventCategory[] = ["Workshop", "Seminar", "Hackathon", "Talk"];
 
@@ -29,6 +29,8 @@ const schema = z.object({
   registration_mode: z.enum(["individual", "team"]),
   max_team_size: z.coerce.number().int().min(1).max(20),
   workspace_enabled: z.boolean(),
+  workspace_type: z.enum(["web", "cpp", "python", "cybersec", "gamedev"]),
+  is_private: z.boolean(),
 });
 
 type FormInput = z.input<typeof schema>;
@@ -81,6 +83,8 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           registration_mode: event.registration_mode,
           max_team_size: event.max_team_size,
           workspace_enabled: event.workspace_enabled,
+          workspace_type: event.workspace_type ?? "web",
+          is_private: event.is_private ?? false,
         }
       : {
           category: "Workshop",
@@ -89,11 +93,14 @@ export function EventForm({ event }: { event?: ClubEvent }) {
           registration_mode: "individual",
           max_team_size: 4,
           workspace_enabled: false,
+          workspace_type: "web",
+          is_private: false,
         },
   });
 
   const registrationOpen = watch("registration_open");
   const registrationMode = watch("registration_mode");
+  const workspaceEnabled = watch("workspace_enabled");
 
   useEffect(() => {
     // The PS Has its own Attendance/Role-Gated Endpoint (see eventController.js's
@@ -221,6 +228,13 @@ export function EventForm({ event }: { event?: ClubEvent }) {
 
       <div className="rounded-md border border-border p-4">
         <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" className="accent-primary" {...register("is_private")} />
+          Private Event (Hidden unless invited)
+        </label>
+      </div>
+
+      <div className="rounded-md border border-border p-4">
+        <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" className="accent-primary" {...register("registration_open")} />
           Open registration for this event
         </label>
@@ -250,8 +264,26 @@ export function EventForm({ event }: { event?: ClubEvent }) {
 
             <label className="flex items-center gap-2 text-sm font-medium">
               <input type="checkbox" className="accent-primary" {...register("workspace_enabled")} />
-              Enable in-browser HTML/CSS/JS workspace for participants
+              Enable live workspace environment for participants
             </label>
+            
+            {workspaceEnabled && (
+              <div className="max-w-64">
+                <Label>Workspace Type</Label>
+                <Select value={watch("workspace_type")} onValueChange={(v) => setValue("workspace_type", v as WorkspaceType)}>
+                  <SelectTrigger className="mt-1 w-full">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="web">Web Sandbox (HTML/CSS/JS)</SelectItem>
+                    <SelectItem value="cpp">C++ Editor</SelectItem>
+                    <SelectItem value="python">AI/ML (Python 3)</SelectItem>
+                    <SelectItem value="gamedev">Game Dev (Web Canvas)</SelectItem>
+                    <SelectItem value="cybersec">Cybersecurity (Linux Terminal)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         )}
       </div>

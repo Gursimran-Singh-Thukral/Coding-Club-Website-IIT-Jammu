@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Pencil, Trash2, ClipboardList } from "lucide-react";
+import { Pencil, Trash2, ClipboardList, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -18,11 +18,13 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { EventInvitesDialog } from "./event-invites-dialog";
 
-export function EventCoordinatorActions({ eventId, title }: { eventId: string; title: string }) {
+export function EventCoordinatorActions({ eventId, title, isPrivate }: { eventId: string; title: string; isPrivate?: boolean }) {
   const { isCoordinator } = useAuth();
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const [invitesOpen, setInvitesOpen] = useState(false);
 
   if (!isCoordinator) return null;
 
@@ -40,6 +42,14 @@ export function EventCoordinatorActions({ eventId, title }: { eventId: string; t
 
   return (
     <div className="flex shrink-0 items-center gap-2">
+      {isPrivate && (
+        <>
+          <Button variant="outline" size="sm" onClick={() => setInvitesOpen(true)}>
+            <Users className="h-3.5 w-3.5" /> Invites
+          </Button>
+          <EventInvitesDialog eventId={eventId} open={invitesOpen} onOpenChange={setInvitesOpen} />
+        </>
+      )}
       <Button variant="outline" size="sm" render={<Link href={`/events/${eventId}/registrations`} />}>
         <ClipboardList className="h-3.5 w-3.5" /> Registrations
       </Button>

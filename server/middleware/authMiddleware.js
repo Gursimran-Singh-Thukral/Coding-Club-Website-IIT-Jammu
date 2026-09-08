@@ -52,4 +52,20 @@ const verifyToken = async(req, res, next) => {
 
 };
 
-module.exports = { verifyToken };
+const verifyTokenOptional = async (req, res, next) => {
+    try {
+        let token = req.cookies?.accessToken;
+        if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+            token = req.headers.authorization.split(' ')[1];
+        }
+        if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_access_key');
+            req.user = decoded;
+        }
+    } catch(err) {
+        // Ignore errors, just don't attach user
+    }
+    next();
+};
+
+module.exports = { verifyToken, verifyTokenOptional };

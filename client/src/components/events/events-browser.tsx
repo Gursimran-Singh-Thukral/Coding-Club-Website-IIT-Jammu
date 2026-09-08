@@ -15,17 +15,19 @@ const CATEGORIES: Array<EventCategory | "All"> = ["All", "Workshop", "Seminar", 
 export function EventsBrowser({ events }: { events: ClubEvent[] }) {
   const { isCoordinator } = useAuth();
   const [category, setCategory] = useState<string>("All");
-  const [when, setWhen] = useState<"upcoming" | "past">("upcoming");
-
-  const filtered = useMemo(() => {
+  const upcomingEvents = useMemo(() => {
     return events
       .filter((e) => category === "All" || e.category === category)
-      .filter((e) => (when === "upcoming" ? getEventStatus(e) !== "past" : getEventStatus(e) === "past"))
-      .sort((a, b) => {
-        const diff = new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
-        return when === "upcoming" ? diff : -diff;
-      });
-  }, [events, category, when]);
+      .filter((e) => getEventStatus(e) !== "past")
+      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+  }, [events, category]);
+
+  const pastEvents = useMemo(() => {
+    return events
+      .filter((e) => category === "All" || e.category === category)
+      .filter((e) => getEventStatus(e) === "past")
+      .sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
+  }, [events, category]);
 
   return (
     <div>
@@ -41,12 +43,6 @@ export function EventsBrowser({ events }: { events: ClubEvent[] }) {
         </Tabs>
 
         <div className="flex items-center gap-3">
-          <Tabs value={when} onValueChange={(v) => setWhen(v as "upcoming" | "past")}>
-            <TabsList variant="line">
-              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-              <TabsTrigger value="past">Past</TabsTrigger>
-            </TabsList>
-          </Tabs>
           {isCoordinator && (
             <Button size="sm" render={<Link href="/events/new" />}>
               <Plus className="h-4 w-4" /> New Event
@@ -55,15 +51,33 @@ export function EventsBrowser({ events }: { events: ClubEvent[] }) {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {upcomingEvents.length === 0 && pastEvents.length === 0 ? (
         <p className="mt-16 text-center text-sm text-muted-foreground">
-          No {when} events{category !== "All" ? ` in ${category}` : ""} right now.
+          No events{category !== "All" ? ` in ${category}` : ""} right now.
         </p>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
+        <div className="mt-8 flex flex-col gap-12">
+          {upcomingEvents.length > 0 && (
+            <div>
+              <h2 className="mb-4 text-xl font-semibold tracking-tight">Live & Upcoming</h2>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {upcomingEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {pastEvents.length > 0 && (
+            <div>
+              <h2 className="mb-4 text-xl font-semibold tracking-tight text-muted-foreground">Past Events</h2>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 opacity-50 grayscale transition-all hover:opacity-100 hover:grayscale-0">
+                {pastEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

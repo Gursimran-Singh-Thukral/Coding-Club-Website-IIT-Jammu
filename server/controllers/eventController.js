@@ -13,7 +13,7 @@ const { isOrganizerRole } = require('../middleware/roleMiddleware');
 
 const UPDATABLE_EVENT_FIELDS = [
     'title', 'description', 'event_date', 'event_end', 'venue', 'category',
-    'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled', 'ps'
+    'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled', 'ps', 'is_private', 'workspace_type'
 ];
 
 // Columns Safe to Hand Back on the Public, Unauthenticated GET /api/events Listing.
@@ -24,7 +24,7 @@ const UPDATABLE_EVENT_FIELDS = [
 const PUBLIC_EVENT_FIELDS = [
     'id', 'title', 'description', 'event_date', 'event_end', 'venue', 'category',
     'registration_open', 'registration_mode', 'max_team_size', 'workspace_enabled',
-    'created_by', 'created_at'
+    'created_by', 'created_at', 'is_private', 'workspace_type'
 ].join(', ');
 
 // Create New Event
@@ -35,7 +35,7 @@ const createEvent = async (req, res) => {
 
         const {
             title, description, event_date, event_end, venue, category,
-            registration_open, registration_mode, max_team_size, workspace_enabled, ps
+            registration_open, registration_mode, max_team_size, workspace_enabled, ps, is_private, workspace_type
         } = req.body;
 
         // Grab ID of the Person making the Request
@@ -83,6 +83,8 @@ const createEvent = async (req, res) => {
                 registration_mode: registration_mode || 'individual',
                 max_team_size: max_team_size || 1,
                 workspace_enabled: workspace_enabled ?? false,
+                workspace_type: workspace_type || 'web',
+                is_private: is_private ?? false,
                 ps: ps || null,
                 created_by: created_by,
                 totp_secret: totpSecret
@@ -134,11 +136,31 @@ const getEvents = async (req, res) => {
 
     try{
 
-        const { data: events, error } = await supabase
-
+        let query = supabase
             .from('events')
             .select(PUBLIC_EVENT_FIELDS)
             .order('event_date', {ascending: true});
+            
+        let isOrganizer = false;
+        if (req.user) {
+            isOrganizer = await isOrganizerRole(req.user.id);
+        }
+        
+        if (!isOrganizer) {
+            if (req.user) {
+                const { data: invites } = await supabase.from('event_invitations').select('event_id').eq('student_id', req.user.id);
+                const invitedEventIds = invites && invites.length > 0 ? invites.map(i => i.event_id) : [];
+                if (invitedEventIds.length > 0) {
+                    query = query.or(`is_private.eq.false,id.in.(${invitedEventIds.join(',')})`);
+                } else {
+                    query = query.eq('is_private', false);
+                }
+            } else {
+                query = query.eq('is_private', false);
+            }
+        }
+
+        const { data: events, error } = await query;
 
         if(error){
 
