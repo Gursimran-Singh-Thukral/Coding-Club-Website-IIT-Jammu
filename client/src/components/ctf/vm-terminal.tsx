@@ -21,7 +21,6 @@ export function VmTerminal() {
   const xtermRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const [ws, setWs] = useState<WebSocket | null>(null);
   const [ctfs, setCtfs] = useState<any[]>([]);
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
@@ -81,70 +80,96 @@ export function VmTerminal() {
 
     xtermRef.current = terminal;
 
-    // Connect WebSocket AFTER terminal is ready
-    const wsProtocol = API_URL.startsWith("https") ? "wss:" : "ws:";
-    const wsHost = API_URL.replace(/^https?:\/\//, "");
-    const wsUrl = `${wsProtocol}//${wsHost}/ws/session/${session.id}`;
+    // Connect directly to VM runner WebSocket for reliable zero-latency streaming
+    const vmBase = (process.env.NEXT_PUBLIC_VM_RUNNER_URL || API_URL || "http://localhost:8080").replace(/\/$/, "");
+    const wsBase = vmBase.replace(/^http/, "ws");
+    const wsUrl = `${wsBase}/ws/session/${session.id}`;
     
-    const newWs = new WebSocket(wsUrl);
-    wsRef.current = newWs;
-    setWs(newWs);
-
-    newWs.onopen = () => {
-      toast.success("Connected to VM");
-      terminal.clear();
-      terminal.writeln("Connected to VM runtime environment.");
-      terminal.writeln("\x1b[33m[System] The VM is booting. This may take 30-60 seconds.\x1b[0m");
-      terminal.writeln("\x1b[33m[System] Note: The screen may go blank during boot. Please wait for the login prompt!\x1b[0m");
-      terminal.focus();
-    };
-
-    newWs.onclose = () => {
-      terminal.writeln("\r\n\x1b[31m[System] Connection to VM lost or closed.\x1b[0m");
-    };
-
+    let isCleanedUp = false;
+    let wsInstance: WebSocket | null = null;
     let bootComplete = false;
     let outputBuffer = "";
     let skippedBootMenu = false;
+    let pokeInterval: NodeJS.Timeout | null = null;
 
-    newWs.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data);
-      if (msg.type === "vm_output") {
-        terminal.write(msg.payload || "");
-        if (!bootComplete) {
-          outputBuffer += msg.payload || "";
-          
-          // Auto-skip the ISOLINUX bootloader delay (saves ~45s)
-          if (!skippedBootMenu && outputBuffer.includes("boot:")) {
-            skippedBootMenu = true;
-            if (newWs.readyState === WebSocket.OPEN) {
-              newWs.send(JSON.stringify({ type: "input", payload: "\r" }));
-            }
-          }
-          
-          if (outputBuffer.includes("login:")) {
-            bootComplete = true;
-            terminal.writeln("\r\n\x1b[32m[System] Boot complete! Type 'root' and press Enter to log in.\x1b[0m");
-          }
+    const connectWS = () => {
+      if (isCleanedUp) return;
+      const newWs = new WebSocket(wsUrl);
+      wsRef.current = newWs;
+      wsInstance = newWs;
+
+      newWs.onopen = () => {
+        toast.success("Connected to VM");
+        terminal.writeln("\r\n\x1b[32m[System] Connected to VM runtime.\x1b[0m");
+        terminal.writeln("\x1b[33m[System] Booting Alpine Linux kernel (waiting for login prompt)...\x1b[0m");
+        terminal.focus();
+      };
+
+      newWs.onclose = () => {
+        if (!isCleanedUp) {
+          terminal.writeln("\r\n\x1b[33m[System] Reconnecting to VM console...\x1b[0m");
+          setTimeout(connectWS, 1500);
         }
-      } else if (msg.type === "flag_found") {
-        toast.success("Flag accepted!");
-      } else if (msg.type === "error") {
-        terminal.writeln(`\r\n[ERROR] ${msg.payload}\r\n`);
-      }
+      };
+
+      newWs.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === "vm_output") {
+            const chunk = msg.payload || "";
+            terminal.write(chunk);
+            outputBuffer += chunk;
+
+            // 1. Auto-press enter when ISOLINUX shows "boot:"
+            if (!skippedBootMenu && outputBuffer.includes("boot:")) {
+              skippedBootMenu = true;
+              terminal.writeln("\r\n\x1b[36m[System] Starting kernel...\x1b[0m");
+              if (newWs.readyState === WebSocket.OPEN) {
+                newWs.send(JSON.stringify({ type: "input", payload: "\r" }));
+              }
+              // Start a periodic poke to wake getty as soon as the kernel finishes booting
+              if (!pokeInterval) {
+                pokeInterval = setInterval(() => {
+                  if (!bootComplete && newWs.readyState === WebSocket.OPEN) {
+                    newWs.send(JSON.stringify({ type: "input", payload: "\r" }));
+                  }
+                }, 4000);
+              }
+            }
+
+            // 2. Detect login prompt (only once when booting completes)
+            if (!bootComplete && (outputBuffer.includes("login:") || outputBuffer.includes("localhost login") || outputBuffer.includes("Welcome to Alpine"))) {
+              bootComplete = true;
+              if (pokeInterval) {
+                clearInterval(pokeInterval);
+                pokeInterval = null;
+              }
+              terminal.writeln("\r\n\x1b[32m[System] Boot complete! Username: 'root' (press Enter to begin)\x1b[0m\r\n");
+            }
+          } else if (msg.type === "flag_found") {
+            toast.success("Flag accepted!");
+          } else if (msg.type === "error") {
+            terminal.writeln(`\r\n[ERROR] ${msg.payload}\r\n`);
+          }
+        } catch (e) {
+          // ignore parsing error
+        }
+      };
     };
 
+    connectWS();
+
     const dataDisposable = terminal.onData(data => {
-      if (!bootComplete) {
-        return; // Ignore input while booting to prevent halting ISOLINUX
-      }
-      if (newWs.readyState === WebSocket.OPEN) {
-        newWs.send(JSON.stringify({ type: "input", payload: data }));
+      // Allow typing once the boot sequence has started (or after 5s), so user can press enter
+      if (wsInstance && wsInstance.readyState === WebSocket.OPEN) {
+        wsInstance.send(JSON.stringify({ type: "input", payload: data }));
       }
     });
 
     return () => {
-      newWs.close();
+      isCleanedUp = true;
+      if (pokeInterval) clearInterval(pokeInterval);
+      if (wsInstance) wsInstance.close();
       clearTimeout(fitTimeout);
       resizeObserver.disconnect();
       dataDisposable.dispose();
