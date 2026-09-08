@@ -91,25 +91,38 @@ export function VmTerminal() {
     let outputBuffer = "";
     let skippedBootMenu = false;
     let pokeInterval: NodeJS.Timeout | null = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 6;
 
-    const connectWS = () => {
+    const connectWS = (delayMs = 1500) => {
       if (isCleanedUp) return;
       const newWs = new WebSocket(wsUrl);
       wsRef.current = newWs;
       wsInstance = newWs;
 
       newWs.onopen = () => {
+        retryCount = 0; // reset on successful connection
         toast.success("Connected to VM");
         terminal.writeln("\r\n\x1b[32m[System] Connected to VM runtime.\x1b[0m");
-        terminal.writeln("\x1b[33m[System] Booting Alpine Linux kernel (waiting for login prompt)...\x1b[0m");
+        terminal.writeln("\x1b[33m[System] Booting Alpine Linux — this takes ~60-90 s on cloud. Please wait...\x1b[0m");
         terminal.focus();
       };
 
+      newWs.onerror = () => {
+        // onerror always fires before onclose; log but don't act here
+      };
+
       newWs.onclose = () => {
-        if (!isCleanedUp) {
-          terminal.writeln("\r\n\x1b[33m[System] Reconnecting to VM console...\x1b[0m");
-          setTimeout(connectWS, 1500);
+        if (isCleanedUp) return;
+        retryCount++;
+        if (retryCount > MAX_RETRIES) {
+          terminal.writeln("\r\n\x1b[31m[System] Could not connect to VM — the server may have restarted. Please stop and retry the challenge.\x1b[0m");
+          toast.error("VM connection lost. Please click the challenge again to restart.");
+          return;
         }
+        const nextDelay = Math.min(delayMs * 1.5, 30_000);
+        terminal.writeln(`\r\n\x1b[33m[System] Reconnecting in ${Math.round(nextDelay / 1000)}s... (attempt ${retryCount}/${MAX_RETRIES})\x1b[0m`);
+        setTimeout(() => connectWS(nextDelay), nextDelay);
       };
 
       newWs.onmessage = (ev) => {
@@ -158,6 +171,7 @@ export function VmTerminal() {
     };
 
     connectWS();
+
 
     const dataDisposable = terminal.onData(data => {
       // Allow typing once the boot sequence has started (or after 5s), so user can press enter
