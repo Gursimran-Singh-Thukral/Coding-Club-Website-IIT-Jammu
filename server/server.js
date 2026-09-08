@@ -76,7 +76,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const { verifyTokenOptional } = require('./middleware/authMiddleware');
 
 const vmProxy = createProxyMiddleware({
-  target: 'http://localhost:8080',
+  target: process.env.VM_RUNNER_URL || 'https://vm-runner-61rp.onrender.com',
   changeOrigin: true,
   pathRewrite: (path, req) => req.originalUrl || req.url,
   ws: true, // proxy websockets

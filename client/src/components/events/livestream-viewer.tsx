@@ -27,7 +27,9 @@ export function LivestreamViewer({ event }: { event: ClubEvent }) {
     fitAddon.fit();
     xtermRef.current = term;
 
-    const wsUrl = `ws://localhost:8080/ws/session/${event.livestream_session_id}?readonly=true`;
+    const vmBase = (process.env.NEXT_PUBLIC_VM_RUNNER_URL || "https://vm-runner-61rp.onrender.com").replace(/\/$/, "");
+    const wsBase = vmBase.replace(/^http/, "ws");
+    const wsUrl = `${wsBase}/ws/session/${event.livestream_session_id}?readonly=true`;
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (e) => {
