@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth-context";
 export function VmTerminal() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get("eventId");
-  const { isCoordinator } = useAuth();
+  const { isCoordinator, user } = useAuth();
   const [isLivestreaming, setIsLivestreaming] = useState(false);
   const terminalContainerRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
@@ -194,7 +194,11 @@ export function VmTerminal() {
     try {
       const res = await fetch(`${vmRunnerBase}/api/sessions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-VMRunner-Role": "user" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-VMRunner-User": user?.email || "guest",
+          "X-VMRunner-Role": "user",
+        },
         body: JSON.stringify({ challenge_id: challenge.id }),
         signal: AbortSignal.timeout(90_000), // 90 s – enough for QEMU cold start
       });
